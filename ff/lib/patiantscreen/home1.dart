@@ -1,9 +1,12 @@
-import 'dart:js_util';
+
 
 import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/patiantscreen/not.dart';
+import 'package:ff/patiantscreen/pat_generate_report.dart';
+import 'package:ff/patiantscreen/patient_progress_page.dart';
 import 'package:ff/patiantscreen/phase.dart';
 import 'package:ff/patiantscreen/profile.dart';
+import 'package:ff/therapisto/patientprogress.dart';
 import 'package:flutter/material.dart';
 
 String Ofline = "Offline";
@@ -174,7 +177,10 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                     ),
                     title: ElevatedButton(
                       onPressed: () {
-                        //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                         Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportsPage2()),
+              );//  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
                       },
                       child: const Text(
                         "See All Reports",
@@ -337,7 +343,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => phase()));
+                        MaterialPageRoute(builder: (context) => User1()));
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(

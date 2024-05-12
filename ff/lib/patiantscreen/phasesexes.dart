@@ -1,5 +1,8 @@
 import 'package:ff/login/patiantlogin.dart';
+import 'package:ff/patiantscreen/exercise_learn.dart';
+import 'package:ff/patiantscreen/exercise_learn2.dart';
 import 'package:ff/patiantscreen/home1.dart';
+import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/profile.dart';
 import 'package:flutter/material.dart';
 
@@ -100,7 +103,10 @@ class _phasesexesState extends State<phasesexes> {
                     ),
                     title: ElevatedButton(
                       onPressed: () {
-                        //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                         Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportsPage2()),
+              );//  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
                       },
                       child: const Text(
                         "See All Reports",
@@ -149,6 +155,11 @@ class _phasesexesState extends State<phasesexes> {
               child: ElevatedButton(
                 onPressed: () {
                   // Button 1 action
+                   Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder: (context) => ExerciseLearnPage())
+              
+            );
                 },
                 /* style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
@@ -165,7 +176,12 @@ class _phasesexesState extends State<phasesexes> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Button 1 action
+                  // Button 2 action
+                   Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder: (context) => ExerciseLearnPage2())
+              
+            );
                 },
                 /* style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(

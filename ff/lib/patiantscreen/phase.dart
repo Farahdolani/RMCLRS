@@ -1,5 +1,6 @@
 import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/patiantscreen/home1.dart';
+import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/phasesexes.dart';
 import 'package:ff/patiantscreen/profile.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +102,10 @@ class _phaseState extends State<phase> {
                     ),
                     title: ElevatedButton(
                       onPressed: () {
-                        //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                        Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportsPage2()),
+              ); //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
                       },
                       child: const Text(
                         "See All Reports",

@@ -1,4 +1,5 @@
 import 'package:ff/patiantscreen/home1.dart';
+import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:flutter/material.dart';
 import 'therapistsignup.dart';
 import 'forgotpassword.dart';
@@ -266,12 +267,12 @@ class _LoginState extends State<Login> {
                                           password = _passController.text;
                                         });
 
-                                        /* Navigator.push(
+                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  HomeScreen1()),
-                                        ); */
+                                                  PatientsList()),
+                                        ); 
                                         //  userLogin();
                                       }
                                     },

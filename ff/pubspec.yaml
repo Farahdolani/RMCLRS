@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  path_provider: ^2.0.14
+  pdf: ^3.10.8
+  open_file: 3.3.2
+  intro_slider: ^4.2.1 
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -57,7 +61,16 @@ flutter:
   assets:
     - assets/image/Capture.PNG
     - assets/image/R.png
-    
+    - images/bottomIMAGE.png
+    - images/report.jfif
+    - images/R1.jfif
+    - images/R2.jfif
+    - images/R3.jfif
+    - images/R4.jfif
+    - images/RE2.jfif
+    - images/RE22.jfif
+    - images/RE222.jfif
+    - images/R2222.jfif    
 
 
 
