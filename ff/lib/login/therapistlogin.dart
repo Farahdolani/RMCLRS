@@ -1,4 +1,4 @@
-import 'package:ff/patiantscreen/home1.dart';
+import 'package:ff/main.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:flutter/material.dart';
 import 'therapistsignup.dart';
@@ -27,15 +27,16 @@ class _AuthPageeState extends State<AuthPagee> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(
-              'assets/image/R.png',
-            ),
-            fit: BoxFit.cover,
-          ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => TwoButtonsWithImage()));
+          },
         ),
+      ),
+      body: Container(
         padding: EdgeInsets.only(bottom: 5),
         child: ListView(
           children: [
@@ -56,7 +57,7 @@ class _AuthPageeState extends State<AuthPagee> {
             const Padding(padding: EdgeInsets.only(top: 20)),
             const Center(
               child: Text(
-                "Sign in to your account",
+                "Sign in to your account Therapist!",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -267,12 +268,12 @@ class _LoginState extends State<Login> {
                                           password = _passController.text;
                                         });
 
-                                         Navigator.push(
+                                        Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   PatientsList()),
-                                        ); 
+                                        );
                                         //  userLogin();
                                       }
                                     },

@@ -36,14 +36,7 @@ class _SignupState extends State<Signup> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/image/R.png',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
+      
       child: Container(
         margin: EdgeInsets.all(12),
         child: Form(
@@ -108,8 +101,8 @@ class _SignupState extends State<Signup> {
                     ),
                   )
                 ]),
-                ElevatedButton(
-                    onPressed: () async {
+                //ElevatedButton(
+                   // onPressed: () async {
                       //   myauth.setConfig(
                       //       appEmail: "tanishachouhan.com",
                       //       appName: "Email OTP",
@@ -128,8 +121,8 @@ class _SignupState extends State<Signup> {
                       //       content: Text("Oops, OTP send failed"),
                       //     ));
                       //   }
-                    },
-                    child: const Text("Send OTP")),
+                  //  },
+                    //child: const Text("Send OTP")),
                 Column(
                   children: [
                     /* ElevatedButton(
@@ -247,7 +240,15 @@ class _SignupState extends State<Signup> {
           ]),
         ),
       ),
-    ));
+    ), 
+    bottomNavigationBar: Container(
+        width: double.infinity,
+        child: Image.asset(
+          './images/bottomIMAGE.png', // Adjust as needed
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
   }
 
   void signUp(

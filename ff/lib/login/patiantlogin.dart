@@ -1,3 +1,4 @@
+import 'package:ff/main.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:flutter/material.dart';
 import 'patiantsignup.dart';
@@ -26,6 +27,15 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => TwoButtonsWithImage()));
+          },
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -55,7 +65,7 @@ class _AuthPageState extends State<AuthPage> {
             const Padding(padding: EdgeInsets.only(top: 20)),
             const Center(
               child: Text(
-                "Sign in to your account",
+                "Sign in to your account Dear Patiant !",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

@@ -1,6 +1,6 @@
-import 'package:ff/login/patiantlogin.dart';
-import 'package:ff/patiantscreen/not.dart';
-import 'package:ff/patiantscreen/profile.dart';
+import 'package:ff/login/therapistlogin.dart';
+import 'package:ff/therapisto/nottherapist.dart';
+import 'package:ff/therapisto/therapist_profile.dart';
 import 'package:flutter/material.dart';
 import 'patientprogress.dart'; // Import main.dart to navigate to it
 
@@ -20,12 +20,9 @@ class _PatientsListState extends State<PatientsList> {
 
   @override
   Widget build(BuildContext context) {
-   // return Scaffold(
+    // return Scaffold(
 
-
-
-
-  return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Color.fromARGB(255, 123, 33, 224),
@@ -40,8 +37,8 @@ class _PatientsListState extends State<PatientsList> {
               ),
             ),
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => noti()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => nottherapist()));
             },
           ),
           GestureDetector(
@@ -97,7 +94,7 @@ class _PatientsListState extends State<PatientsList> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ProfileSettings()));
+                                builder: (context) => Profiletherapist()));
                       },
                       child: const Text(
                         "Profile",
@@ -109,7 +106,7 @@ class _PatientsListState extends State<PatientsList> {
                     ),
                   ),
                   const Padding(padding: EdgeInsets.all(15)),
-                 /*  ListTile(
+                  /*  ListTile(
                     leading: const Icon(
                       Icons.home,
                       color: Colors.white,
@@ -131,7 +128,7 @@ class _PatientsListState extends State<PatientsList> {
                     ),
                   ), */
                   const Padding(padding: EdgeInsets.all(15)),
-               /*    ListTile(
+                  /*    ListTile(
                     leading: const Icon(
                       Icons.local_hospital_sharp,
                       color: Colors.white,
@@ -162,10 +159,8 @@ class _PatientsListState extends State<PatientsList> {
                       onPressed: () {
                         // FirebaseAuth.instance.signOut();
 
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AuthPage()));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Auth()));
                       },
                       child: const Text(
                         "Logout",
@@ -180,8 +175,6 @@ class _PatientsListState extends State<PatientsList> {
               ),
             )),
       ),
-
-
 
       /*appBar: AppBar(
         title: Text('Patients List'),
@@ -210,7 +203,8 @@ class _PatientsListState extends State<PatientsList> {
         child: Padding(
           padding: EdgeInsets.all(20.0), // Padding for the whole page
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align content to the start (left)
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Align content to the start (left)
             children: [
               // First part of the page
               Row(
@@ -229,7 +223,9 @@ class _PatientsListState extends State<PatientsList> {
                       color: const Color.fromARGB(255, 168, 130, 130),
                     ),
                   ),
-                  SizedBox(width: 10), // Add some space between the user icon and text
+                  SizedBox(
+                      width:
+                          10), // Add some space between the user icon and text
                   // Doctor name
                   Text(
                     'Dr. Ahmad Waleed',
@@ -261,7 +257,6 @@ class _PatientsListState extends State<PatientsList> {
                   return buildPatientCard(patientNames[index], index);
                 },
               ),
-              
             ],
           ),
         ),

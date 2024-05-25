@@ -17,10 +17,10 @@ class ReportsPage2 extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-             Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Repophase2()),
-              );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Repophase2()),
+            );
           },
         ),
       ),
@@ -120,7 +120,6 @@ class DynamicReportPage extends StatelessWidget {
                 ),
               ],
             ),
-           
             Image.asset(
               './images/report.jfif',
               width: 200,
@@ -222,7 +221,8 @@ class DynamicReportPage extends StatelessWidget {
     );
   }
 
-  Future<pw.Widget> _buildPdfContent(BuildContext context, pw.Document pdf) async {
+  Future<pw.Widget> _buildPdfContent(
+      BuildContext context, pw.Document pdf) async {
     final imageBytes = await rootBundle.load('./images/report.jfif');
     final image = pw.MemoryImage(imageBytes.buffer.asUint8List());
 
