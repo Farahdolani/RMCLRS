@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "681089735002",
+    "project_id": "rmclrs",
+    "storage_bucket": "rmclrs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681089735002:android:e0908d7c6c16febf093b63",
+        "android_client_info": {
+          "package_name": "com.example.ff"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6bTqBAjWKazYmknTMLE_JzM8EN0WowSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

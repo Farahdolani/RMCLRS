@@ -1,5 +1,5 @@
-
-
+//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ff/login/model.dart';
 import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/patiantscreen/not.dart';
 import 'package:ff/patiantscreen/pat_generate_report.dart';
@@ -8,6 +8,7 @@ import 'package:ff/patiantscreen/phase.dart';
 import 'package:ff/patiantscreen/profile.dart';
 import 'package:ff/therapisto/patientprogress.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
 String Ofline = "Offline";
 
@@ -20,10 +21,41 @@ class HomeScreen1 extends StatefulWidget {
 
 class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
   late Map<String, dynamic> userMap;
-//final FirebaseAuth auth = FirebaseAuth.instance;
-//final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  //final currentUser = FirebaseAuth.instance;
-
+  final FirebaseAuth auth = FirebaseAuth.instance; // FirebaseAuth instance
+  // Function to retrieve user data and populate the UserData model
+  
+/* Future<UserModel> getUserData() async {
+  try {
+    // Get the current user
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Retreve the user's data from Firestore
+      final userDoc = await FirebaseFirestore.instance.collection('patient2').doc(user.uid).get();
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        if (userData != null) {
+          // Create a UserData instance from the retrieved data
+          return UserModel.fromMap({
+            'name': userData['name'],
+            'email': userData['email'],
+            'uid': user.uid,
+          });
+        }
+      }
+    }
+  } catch (e) {
+    // Handle any errors that occurred during the process
+    print('Error retrieving user data: $e');
+  }
+  // If there was an error or the user data couldn't be retrieved, return a default UserData instance
+  return UserModel(name: '', email: '', uid: '');
+}
+ */
+  
+/* Future<String> getUserDataString() async {
+  final userData = await getUserData();
+  return 'Welcome ${userData.name} to RMCLRS!';
+} */
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -31,33 +63,22 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
   }
 
   void setStatus(String status) async {
-//  await _firestore.collection("patient").doc(auth.currentUser?.uid).update({
-
-    //  "status":status,
-    //});
-    // patientOnline(status);
+    // Update the user's status in Firestore or Realtime Database
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      //online
+      // online
       setStatus("online");
-
-      print("onlineeee***********");
     } else {
-      //offline
+      // offline
       setStatus("offline");
     }
   }
 
   void patientOnline(String onof) async {
-    // FirebaseDatabase database = FirebaseDatabase.instance;
-    // final check = currentUser.currentUser?.uid;
-    // DatabaseReference ref = FirebaseDatabase.instance.ref("onlineOfline/$check");
-
-    // await ref.set({
-    //   "Status" : onof,
-//  });
+    // Update the patient's online status in Firebase Realtime Database
   }
 
   @override
@@ -101,31 +122,6 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
               child: Column(
                 children: [
                   const Padding(padding: EdgeInsets.all(15)),
-                  //StreamBuilder(
-                  // stream: FirebaseFirestore.instance.collection("patient").where("uid",
-                  //   isEqualTo: currentUser.currentUser?.uid).snapshots(),
-
-                  //  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot)
-                  /*    {
-                    if(snapshot.hasData){
-                      return ListView.builder(itemCount: snapshot.data!.docs.length,
-                        shrinkWrap: true, itemBuilder: (context,i) {
-
-
-                          var data = snapshot.data!.docs[i];
-
-                          return UserAccountsDrawerHeader(accountName: Text(data["name"]),
-
-                              accountEmail: Text(data["email"]));
-
-                        },
-                      );
-                    }else{
-                      return const CircularProgressIndicator();
-                    }
-                  },
- */
-
                   ListTile(
                     leading: const Icon(
                       Icons.person,
@@ -177,10 +173,10 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                     ),
                     title: ElevatedButton(
                       onPressed: () {
-                         Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportsPage2()),
-              );//  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ReportsPage2()),
+                        );
                       },
                       child: const Text(
                         "See All Reports",
@@ -198,13 +194,13 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                       color: Colors.white,
                     ),
                     title: ElevatedButton(
-                      onPressed: () {
-                        // FirebaseAuth.instance.signOut();
-
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AuthPage()));
+                      onPressed: () async {
+                        await auth.signOut(); // Sign out the user
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => AuthPage()),
+                          (Route<dynamic> route) => false,
+                        );
                       },
                       child: const Text(
                         "Logout",
@@ -258,7 +254,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                 margin: const EdgeInsets.only(top: 20),
                 child: Center(
                   child: Text(
-                    'Welcome to RMCLRS !',
+                    'Welcome  to RMCLRS !',
                     style: TextStyle(
                       color: Colors.white, // Text color
                       fontWeight: FontWeight.bold, // Text weight
@@ -358,103 +354,6 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                 ),
               ),
             )
-
-            /*    Expanded(
-
-                child:StreamBuilder(
-
-                  stream: FirebaseFirestore.instance.collection('doctors').
-                  snapshots(),
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.hasData){
-                      return ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index)=> Padding(
-                          padding: const EdgeInsets.all(8.0),
-
-                          child: Container(
-                             width: 80,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-
-
-                            child: Row( children: [
-
-                              Container(
-                                padding: const EdgeInsets.all(15),
-
-                                width: 230,
-
-                                child:
-
-                                TextButton( onPressed: ()
-                                 {
-                                  /* String did="";
-                                  //did=snapshot.data!.docs[index]['uid'];
-                                 // Doctor.func(did);
-
-
-
-                                  Navigator.push( context,MaterialPageRoute(builder:
-                                      (context) =>const BookingPage(),
-
-
-                                  )
-
-                                  ); */
-                                },
-
-                                  child: Text(snapshot.data!.docs[index]['name'],
-
-
-
-                                  ),
-
-
-
-
-                                ),
-
-
-                              ),
-
-
-                              const Padding(padding: EdgeInsets.all(15)),
-                              Text(snapshot.data!.docs[index]['Specilization'],
-
-                              ),
-Padding(padding: EdgeInsets.only(top: 10)),
-                             SizedBox(height: 15,),
-                             Expanded(
-                               flex: 1,
-
-                               child:
-                               ListView(children:<Widget>[
-
-                                 Padding(padding: EdgeInsets.only(left: 10,right: 10,bottom: 10)),
-                                 Text(snapshot.data!.docs[index]['status'],style: TextStyle(
-                                   fontSize: 15,
-                                   fontWeight: FontWeight.bold,
-
-                                 ),),
-                               ])),
-
-
-
-                            ]
-                          ),
-                        ),
-                      ));
-
-                    } else {
-                      return Container();
-                    }
-                  },
-                ),
-            ) */
           ],
         ),
       ),
@@ -470,7 +369,6 @@ Padding(padding: EdgeInsets.only(top: 10)),
       margin: const EdgeInsets.only(right: 15),
       width: 100,
       decoration: BoxDecoration(
-        // ignore: use_full_hex_values_for_flutter_colors
         color: const Color(0xff1071613),
         borderRadius: BorderRadius.circular(10),
       ),
@@ -552,7 +450,6 @@ Padding(padding: EdgeInsets.only(top: 10)),
                     margin: const EdgeInsets.only(top: 10),
                     child: Row(
                       children: [
-                        // ignore: avoid_unnecessary_containers
                         Container(
                           child: Text(
                             speciality,

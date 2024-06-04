@@ -4,6 +4,7 @@ import 'package:ff/patiantscreen/exercise_learn2.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/profile.dart';
+import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:flutter/material.dart';
 
 class phasesexes extends StatefulWidget {
@@ -124,13 +125,13 @@ class _phasesexesState extends State<phasesexes> {
                       color: Colors.white,
                     ),
                     title: ElevatedButton(
-                      onPressed: () {
-                        // FirebaseAuth.instance.signOut();
-
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AuthPage()));
+                       onPressed: () async {
+                        await auth.signOut(); // Sign out the user
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => AuthPage()),
+                          (Route<dynamic> route) => false,
+                        );
                       },
                       child: const Text(
                         "Logout",

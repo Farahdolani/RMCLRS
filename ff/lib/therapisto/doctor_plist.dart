@@ -1,8 +1,15 @@
+import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/login/therapistlogin.dart';
 import 'package:ff/therapisto/nottherapist.dart';
 import 'package:ff/therapisto/therapist_profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'patientprogress.dart'; // Import main.dart to navigate to it
+import 'patientprogress.dart' as customUser; // Alias your custom User class
+import 'package:firebase_auth/firebase_auth.dart';
+
+final FirebaseAuth auth = FirebaseAuth.instance;
+
 
 class PatientsList extends StatefulWidget {
   @override
@@ -156,11 +163,13 @@ class _PatientsListState extends State<PatientsList> {
                       color: Colors.white,
                     ),
                     title: ElevatedButton(
-                      onPressed: () {
-                        // FirebaseAuth.instance.signOut();
-
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Auth()));
+                      onPressed: () async {
+                        await auth.signOut(); // Sign out the user
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => AuthPage()),
+                          (Route<dynamic> route) => false,
+                        );
                       },
                       child: const Text(
                         "Logout",
@@ -294,7 +303,7 @@ class _PatientsListState extends State<PatientsList> {
                 // Handle click for the first patient
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => User()),
+                  MaterialPageRoute(builder: (context) =>customUser.User()),
                 );
               } else {
                 // Handle click for other patients (if needed)

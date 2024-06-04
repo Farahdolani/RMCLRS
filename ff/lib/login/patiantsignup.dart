@@ -1,299 +1,241 @@
-import 'package:ff/login/patiantlogin.dart';
+import 'package:ff/patiantscreen/home1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Signup extends StatefulWidget {
+  const Signup({Key? key}) : super(key: key);
+
   @override
-  _SignupState createState() => _SignupState();
+  State<Signup> createState() => _SignupState();
 }
 
 class _SignupState extends State<Signup> {
-  _SignupState();
+  final _formKey = GlobalKey<FormState>();
+  var userName = "";
+  var thId = "";
+  var dId = "";
+  var email = "";
+  var password = "";
 
-  bool showProgress = false;
-  bool visible = false;
+  final _userNameController = TextEditingController();
+  final _thIdController = TextEditingController();
+  final _dIdController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  final _formkey = GlobalKey<FormState>();
-  //final _auth = FirebaseAuth.instance;
-  //CollectionReference ref = FirebaseFirestore.instance.collection('users');
-  final TextEditingController passwordController = new TextEditingController();
-  final TextEditingController confirmpassController =
-      new TextEditingController();
-  final TextEditingController Name = new TextEditingController();
-  final TextEditingController emailController = new TextEditingController();
-  final TextEditingController mobile = new TextEditingController();
-  TextEditingController otp = new TextEditingController();
+  bool obsecurePass = true;
 
-  //EmailOTP myauth = EmailOTP();
-  bool _isObscure = true;
+  Future userSignup() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-  //File? file;
-  var options = [
-    'Student',
-    'Teacher',
-  ];
+      // You can also save additional user information (userName, thId, dId) to Firestore if needed
+      // await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
+      //   'userName': userName,
+      //   'thId': thId,
+      //   'dId': dId,
+      //   'email': email,
+      // });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.green,
+              content: Text("Account created successfully",
+                style: TextStyle(
+                    fontSize: 20
+                ),)
+          ));
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen1()));
+    } on FirebaseAuthException catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              backgroundColor: Colors.red,
+              content: Text("Error: $e",
+                style: TextStyle(
+                    fontSize: 20
+                ),)
+          ));
+    }
+  }
+
+  @override
+  void dispose() {
+    _userNameController.dispose();
+    _thIdController.dispose();
+    _dIdController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/image/R.png',
-          ),
-          fit: BoxFit.cover,
+      appBar: AppBar(
+        title: Text('Sign Up'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
-      child: Container(
-        margin: EdgeInsets.all(12),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/image/R.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        padding: EdgeInsets.all(16),
         child: Form(
-          key: _formkey,
-          child: ListView(children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(padding: EdgeInsets.all(0.8)),
-                SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 100),
-                  child: TextFormField(
-                    controller: Name,
-                    decoration: InputDecoration(
-                      filled: true,
-                      hintText: 'Name',
-                      labelText: ('Name'),
-                      alignLabelWithHint: true,
-                      prefixIcon: Icon(
-                        Icons.person,
-                        color: Colors.black,
-                      ),
-                      enabled: true,
-                      contentPadding: const EdgeInsets.only(
-                          left: 14.0, bottom: 8.0, top: 8.0),
+          key: _formKey,
+          child: ListView(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: _userNameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter user name";
+                    }
+                    return null;
+                  },
+                  onChanged: (val) {
+                    userName = val;
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'User Name',
+                    labelText: 'User Name',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: _thIdController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter TH_ID";
+                    }
+                    return null;
+                  },
+                  onChanged: (val) {
+                    thId = val;
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'TH_ID',
+                    labelText: 'TH_ID',
+                    prefixIcon: Icon(Icons.badge),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: _dIdController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter D_ID";
+                    }
+                    return null;
+                  },
+                  onChanged: (val) {
+                    dId = val;
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'D_ID',
+                    labelText: 'D_ID',
+                    prefixIcon: Icon(Icons.perm_identity),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: _emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter email";
+                    } else if (!value.contains('@')) {
+                      return "Please enter a valid email";
+                    }
+                    return null;
+                  },
+                  onChanged: (val) {
+                    email = val;
+                  },
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    hintText: 'Email Address',
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  controller: _passwordController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please enter password";
+                    }
+                    return null;
+                  },
+                  onChanged: (val) {
+                    password = val;
+                  },
+                  obscureText: obsecurePass,
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                    labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          obsecurePass = !obsecurePass;
+                        });
+                      },
+                      icon: obsecurePass
+                          ? const Icon(Icons.visibility_off)
+                          : const Icon(Icons.visibility),
                     ),
                   ),
                 ),
-                Padding(padding: EdgeInsets.all(15)),
-                Column(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(
-                      child: TextFormField(
-                        controller: emailController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          hintText: 'Email',
-                          labelText: ('Email'),
-                          alignLabelWithHint: true,
-                          prefixIcon: Icon(
-                            Icons.email,
-                            color: Colors.black,
-                          ),
-                          enabled: true,
-                        ),
-                        validator: (value) {
-                          if (value!.length == 0) {
-                            return "Email cannot be empty";
-                          }
-                          if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
-                              .hasMatch(value)) {
-                            return ("Please enter a valid email");
-                          } else {
-                            return null;
-                          }
-                        },
-                        onChanged: (value) {},
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                    ),
-                  )
-                ]),
-                ElevatedButton(
-                    onPressed: () async {
-                      //   myauth.setConfig(
-                      //       appEmail: "tanishachouhan.com",
-                      //       appName: "Email OTP",
-                      //       userEmail: emailController.text,
-                      //       otpLength: 6,
-                      //       otpType: OTPType.digitsOnly
-                      //   );
-                      //   if (await myauth.sendOTP() == true) {
-                      //     ScaffoldMessenger.of(context)
-                      //         .showSnackBar(const SnackBar(
-                      //       content: Text("OTP has been sent"),
-                      //     ));
-                      //   } else {
-                      //     ScaffoldMessenger.of(context)
-                      //         .showSnackBar(const SnackBar(
-                      //       content: Text("Oops, OTP send failed"),
-                      //     ));
-                      //   }
-                    },
-                    child: const Text("Send OTP")),
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                          controller: otp,
-                          decoration: const InputDecoration(
-                            hintText: "Enter #Device_NUM",
-                            labelText: ('#Num'),
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.numbers,
-                              color: Colors.black,
-                            ),
-                          )),
-                    ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          /*  if (await myauth.verifyOTP(otp: otp.text) == true) {
-
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text("OTP is verified"),
-                                  ));
-                                } else {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text("Invalid OTP"),
-                                  ));
-                                }
-                             */
-                        },
-                        child: const Text("Verify")),
-                    Padding(padding: EdgeInsets.all(15)),
-                    SingleChildScrollView(
-                      child: Column(children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                              controller: otp,
-                              decoration: const InputDecoration(
-                                hintText: "Enter #Thirapist_ID",
-                                labelText: ('#ID_Th'),
-                                alignLabelWithHint: true,
-                                prefixIcon: Icon(
-                                  Icons.numbers,
-                                  color: Colors.black,
-                                ),
-                              )),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            child: TextFormField(
-                              obscureText: _isObscure,
-                              controller: passwordController,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                    icon: Icon(_isObscure
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isObscure = !_isObscure;
-                                      });
-                                    }),
-                                filled: true,
-                                hintText: 'Password',
-                                enabled: true,
-                              ),
-                              validator: (value) {
-                                RegExp regex = new RegExp(
-                                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
-                                if (value!.isEmpty) {
-                                  return "Password cannot be empty";
-                                }
-                                if (!regex.hasMatch(value)) {
-                                  return ("please enter valid password min. 8 character");
-                                } else {
-                                  return null;
-                                }
-                              },
-                              onChanged: (value) {},
-                            ),
-                          ),
-                        )
-                      ]),
-                    ),
-                    SingleChildScrollView(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              /*  if (await myauth.verifyOTP(otp: otp.text) == true){
-                                    setState(() {
-                                    showProgress = true;
-                                    });
-                                    signUp(emailController.text,
-                                    passwordController.text,Name.text,);
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                        content: Text("SignUp Sucessfull!")));
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) => Auth()));
-                                    }else{
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("Please! Verify OTP!"),
-                                      ));
-                                    }
- */
-                            },
-                            child: Text(
-                              "Sign up",
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        userName = _userNameController.text;
+                        thId = _thIdController.text;
+                        dId = _dIdController.text;
+                        email = _emailController.text;
+                        password = _passwordController.text;
+                      });
+                      userSignup();
+                    }
+                  },
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-              ],
-            ),
-          ]),
+              ),
+            ],
+          ),
         ),
       ),
-    ));
-  }
-
-  void signUp(
-    String email,
-    String password,
-    String name,
-  ) async {
-    CircularProgressIndicator();
-    if (_formkey.currentState!.validate()) {
-      //   await _auth
-      //   .createUserWithEmailAndPassword(email: email, password: password)
-      //     .then((value) => {postDetailsToFirestore(email,password,name , )})
-      // .catchError((e) {});
-    }
-  }
-
-  postDetailsToFirestore(
-    String email,
-    String password,
-    String name,
-  ) async {
-    //FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    //User? user = _auth.currentUser;
-    //UserModel userModel = UserModel();
-    //userModel.name=name;
-
-    //userModel.email = email;
-    //userModel.uid = user!.uid;
-    //userModel.password=password;
-    //await firebaseFirestore
-    //  .collection("patient")
-    //.doc(user.uid)
-    // .set(userModel.toMap());
+    );
   }
 }

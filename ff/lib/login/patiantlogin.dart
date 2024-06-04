@@ -1,5 +1,6 @@
 import 'package:ff/main.dart';
 import 'package:ff/patiantscreen/home1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'patiantsignup.dart';
 import 'forgotpassword.dart';
@@ -137,38 +138,40 @@ class _LoginState extends State<Login> {
 
   bool obsecurePass = true;
 
-//  userLogin() async {
-//     try {
-//       //await FirebaseAuth.instance.signInWithEmailAndPassword(
-//         //  email: email,
-//           //password: password);
+ Future userLogin() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+  email: email,
+password: password);
 
-//       //Navigator.pushReplacement(context, MaterialPageRoute(builder:
-//           //(context) => MainLayout()));
-//     } on FirebaseAuthException catch (e) {
-//       if (e.code == 'user not found') {
-//         print("No user found");
-//         ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(
-//                 backgroundColor: Colors.red,
-//                 content: Text("No user found",
-//                   style: TextStyle(
-//                       fontSize: 20
-//                   ),)
-//             ));
-//       } else if (e.code == 'wrong-password') {
-//         print("Wrong password");
-//         ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(
-//                 backgroundColor: Colors.red,
-//                 content: Text("No user found",
-//                   style: TextStyle(
-//                       fontSize: 20
-//                   ),)
-//             ));
-//       }
-//     }
-//   }
+Navigator.pushReplacement(context, MaterialPageRoute(builder:
+(context) =>HomeScreen1()));
+    } on FirebaseAuthException catch (e) {
+    
+       print("No user found");
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: Colors.red,
+                content: Text("No user found",
+                  style: TextStyle(
+                      fontSize: 20
+                  ),)
+            ));
+  
+        /* print("Wrong password");
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: Colors.red,
+                content: Text("No user found",
+                  style: TextStyle(
+                      fontSize: 20
+                  ),)
+            )); */
+      
+    }
+  }
+
+
 
   @override
   void dispose() {
@@ -176,6 +179,13 @@ class _LoginState extends State<Login> {
     _passController.dispose();
     super.dispose();
   }
+
+
+
+
+
+
+
 
   Widget build(BuildContext context) {
     return Form(
@@ -274,15 +284,25 @@ class _LoginState extends State<Login> {
                                         setState(() {
                                           email = _emailController.text;
                                           password = _passController.text;
-                                        });
+                                        }
+                                      
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        );
 
-                                        Navigator.push(
+                                        /* Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   HomeScreen1()),
-                                        );
-                                        //  userLogin();
+                                        ); */
+                                         userLogin();
                                       }
                                     },
                                     child: Text(

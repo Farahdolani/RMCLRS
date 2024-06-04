@@ -1,5 +1,7 @@
 import 'package:ff/main.dart';
+import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'therapistsignup.dart';
 import 'forgotpassword.dart';
@@ -128,6 +130,49 @@ class _LoginState extends State<Login> {
   final _passController = TextEditingController();
 
   bool obsecurePass = true;
+
+
+
+
+
+Future userLogin() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+  email: email,
+password: password);
+
+Navigator.pushReplacement(context, MaterialPageRoute(builder:
+(context) =>PatientsList()));
+    } on FirebaseAuthException catch (e) {
+    
+       print("No user found");
+       ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: Colors.red,
+                content: Text("No user found",
+                  style: TextStyle(
+                      fontSize: 20
+                  ),)
+            ));
+  
+        /* print("Wrong password");
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                backgroundColor: Colors.red,
+                content: Text("No user found",
+                  style: TextStyle(
+                      fontSize: 20
+                  ),)
+            )); */
+      
+    }
+  }
+
+
+
+
+
+
 
 //  userLogin() async {
 //     try {
@@ -268,13 +313,13 @@ class _LoginState extends State<Login> {
                                           password = _passController.text;
                                         });
 
-                                        Navigator.push(
+                                       /*  Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   PatientsList()),
-                                        );
-                                        //  userLogin();
+                                        ); */
+                                         userLogin();
                                       }
                                     },
                                     child: Text(
