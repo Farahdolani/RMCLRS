@@ -1,5 +1,6 @@
 
 
+import 'package:ff/patiantscreen/exercise.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/report_ph2.dart';
@@ -22,9 +23,9 @@ class User1 extends StatefulWidget {
 
 class _UserState extends State<User1> {
   // Placeholder values for the progress
-  int phasesProgress = 0;
-  int exercisesProgress = 0;
-  int overallProgress = 0;
+  double phasesProgress = Exercise.exe/2;
+  double exercisesProgress = Exercise.exe;
+  double overallProgress = Exercise.exe*12.5;
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +96,7 @@ class _UserState extends State<User1> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             // Placeholder circular progress indicator with value displayed
-            _buildCircularElement(exercisesProgress),
+            _buildCircularElement(Exercise.exe),
             Text(
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -129,7 +130,7 @@ class _UserState extends State<User1> {
     );
   }
 
-  Widget _buildCircularElement(int progressValue, {bool showPercentage = false}) {
+  Widget _buildCircularElement(double progressValue, {bool showPercentage = false}) {
     return Stack(
       alignment: Alignment.center,
       children: [

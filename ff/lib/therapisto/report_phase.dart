@@ -1,4 +1,5 @@
- import 'package:ff/therapisto/generate_report.dart';
+ import 'package:ff/therapisto/doctor_plist.dart';
+import 'package:ff/therapisto/generate_report.dart';
 import 'package:ff/therapisto/patientprogress.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class Repophase extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context, 
-              MaterialPageRoute(builder: (context) => User())
+              MaterialPageRoute(builder: (context) => PatientsList())
               
             ); // Go back when arrow is pressed
           },

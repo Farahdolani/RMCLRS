@@ -10,6 +10,10 @@ class Exercise extends StatefulWidget {
 
   @override
   _ExerciseState createState() => _ExerciseState();
+
+  // Static variable to track the repetitions
+  static double exe = 0;
+  
 }
 
 class _ExerciseState extends State<Exercise> {
@@ -111,6 +115,10 @@ class _ExerciseState extends State<Exercise> {
                     if (_completedSquares[i] == false) {
                       _completedSquares[i] = true;
                       _completedReps--;
+                      if (_completedReps == 0) {
+                        Exercise.exe++; // Increment the global variable
+                        print(Exercise.exe);
+                      }
                       break; // Break after coloring one square
                     }
                   }

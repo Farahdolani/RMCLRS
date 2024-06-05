@@ -1,6 +1,7 @@
-//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ff/login/model.dart';
 import 'package:ff/login/patiantlogin.dart';
+import 'package:ff/patiantscreen/exercise.dart';
 import 'package:ff/patiantscreen/not.dart';
 import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/patient_progress_page.dart';
@@ -24,21 +25,25 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
   final FirebaseAuth auth = FirebaseAuth.instance; // FirebaseAuth instance
   // Function to retrieve user data and populate the UserData model
   
-/* Future<UserModel> getUserData() async {
+
+
+Future<UserModel> getUserData() async {
   try {
     // Get the current user
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // Retreve the user's data from Firestore
       final userDoc = await FirebaseFirestore.instance.collection('patient2').doc(user.uid).get();
-      if (userDoc.exists) {
+      print(user.uid);
+            if (userDoc.exists) {
         final userData = userDoc.data();
         if (userData != null) {
           // Create a UserData instance from the retrieved data
           return UserModel.fromMap({
+            'pId': user.uid,
             'name': userData['name'],
             'email': userData['email'],
-            'uid': user.uid,
+            
           });
         }
       }
@@ -48,14 +53,15 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
     print('Error retrieving user data: $e');
   }
   // If there was an error or the user data couldn't be retrieved, return a default UserData instance
-  return UserModel(name: '', email: '', uid: '');
+  return UserModel(name: '', email: '', pId: '');
 }
- */
+
   
-/* Future<String> getUserDataString() async {
+Future<String> getUserDataString() async {
   final userData = await getUserData();
+  print(userData.name);
   return 'Welcome ${userData.name} to RMCLRS!';
-} */
+}
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -80,7 +86,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
   void patientOnline(String onof) async {
     // Update the patient's online status in Firebase Realtime Database
   }
-
+double overallProgress = Exercise.exe*12.5;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -251,56 +257,69 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                   ],
                 )),
             Container(
-                margin: const EdgeInsets.only(top: 20),
-                child: Center(
-                  child: Text(
-                    'Welcome  to RMCLRS !',
-                    style: TextStyle(
-                      color: Colors.white, // Text color
-                      fontWeight: FontWeight.bold, // Text weight
-                    ),
-                  ),
-                ),
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.blue, // Background color
-                  borderRadius: BorderRadius.circular(8), // BorderRadius
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5), // Shadow color
-                      spreadRadius: 5, // Spread radius
-                      blurRadius: 7, // Blur radius
-                      offset: Offset(0, 3), // Offset
-                    ),
-                  ],
-                )),
+  margin: const EdgeInsets.only(top: 20),
+  child: Center(
+    child: FutureBuilder<String>(
+      future: getUserDataString(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text(
+            'Loading...',
+            style: TextStyle(
+              color: const Color.fromARGB(255, 255, 20, 20),
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        } else if (snapshot.hasData) {
+          return Text(
+            snapshot.data!,
+            style: TextStyle(
+              color: Color.fromARGB(255, 19, 78, 142),
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        } else {
+          return Text(
+            'Error retrieving user data',
+            style: TextStyle(
+              color: Color.fromARGB(255, 102, 211, 29),
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+      },
+    ),
+  ),
+),
             SizedBox(
               height: 50,
             ),
             Center(
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  // Background color
-                  shape: BoxShape.circle, // Shape set to circle
-                  border: Border.all(
-                    color: Color.fromARGB(255, 123, 33, 224), // Border color
-                    width: 3, // Border width
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    '10%',
-                    style: TextStyle(
-                      color: Colors.black, // Text color
-                      fontWeight: FontWeight.bold, // Text weight
-                    ),
-                  ),
-                ),
-              ),
-            ),
+  child: Container(
+    width: 150, // Adjust the width and height for the desired size
+    height: 150,
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        CircularProgressIndicator(
+          value: overallProgress / 100,
+          valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 75, 237, 25)),
+          strokeWidth: 100, // Increase the strokeWidth for a larger indicator
+          backgroundColor: Color.fromARGB(172, 72, 72, 72),
+        ),
+        Text(
+          "${overallProgress.round()}%",
+          style: TextStyle(
+            fontSize: 24, // Adjust the size as needed
+            fontWeight: FontWeight.bold,
+            color: const Color.fromARGB(255, 245, 245, 245),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
             Center(
               child: Text('YOUR PROGRESS !'),
             ),

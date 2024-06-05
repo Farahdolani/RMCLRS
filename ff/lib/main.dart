@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'login/therapistlogin.dart';
 import 'login/patiantlogin.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 
@@ -17,7 +17,7 @@ void main() async {
   //FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   runApp(const MyApp());
 }
-
+String rool='p';
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -82,6 +82,7 @@ class TwoButtonsWithImage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Handle button 1 press
+                        rool='p';
                         Navigator.pushNamed(context, '/second');
                       },
                       child: const Text('Patient'),
@@ -100,6 +101,7 @@ class TwoButtonsWithImage extends StatelessWidget {
                     // Button 2
                     ElevatedButton(
                       onPressed: () {
+                        rool='t';
                         // Handle button 2 press
                         Navigator.push(
                           context,

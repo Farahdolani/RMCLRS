@@ -1,15 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ff/therapisto/patientprogress.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/login/therapistlogin.dart';
 import 'package:ff/therapisto/nottherapist.dart';
 import 'package:ff/therapisto/therapist_profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'patientprogress.dart'; // Import main.dart to navigate to it
-import 'patientprogress.dart' as customUser; // Alias your custom User class
-import 'package:firebase_auth/firebase_auth.dart';
 
 final FirebaseAuth auth = FirebaseAuth.instance;
-
 
 class PatientsList extends StatefulWidget {
   @override
@@ -17,18 +15,49 @@ class PatientsList extends StatefulWidget {
 }
 
 class _PatientsListState extends State<PatientsList> {
-  List<String> patientNames = [
-    'Zayn Shawahneh',
-    'Amr Ghassan',
-    'Safa Refai',
-    'Farah Dolani',
-    'Sham Hashim'
-  ];
+  List<String> patientNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPatientNames();
+  }
+
+  Future<void> fetchPatientNames() async {
+    String therapistId = '';
+
+    // Fetch the therapist document based on the current user's ID
+    DocumentSnapshot therapistSnapshot = await FirebaseFirestore.instance
+        .collection('therapist')
+        .doc(auth.currentUser!.uid)
+        .get();
+
+    // Check if the therapist document exists
+    if (therapistSnapshot.exists) {
+      // Get the therapist ID (thId) from the document
+      therapistId = therapistSnapshot['thId'];
+
+      // Query Firestore to get the patient names associated with the therapist ID
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('patient2')
+          .where('pId', isEqualTo: therapistId)
+          .get();
+
+      // Extract patient names from the query snapshot
+      List<String> names = [];
+      querySnapshot.docs.forEach((doc) {
+        names.add(doc['name']);
+      });
+
+      // Update the patient names in the state
+      setState(() {
+        patientNames = names;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -61,170 +90,75 @@ class _PatientsListState extends State<PatientsList> {
       ),
       drawer: Drawer(
         child: Container(
-            color: Color.fromARGB(255, 123, 33, 224),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  const Padding(padding: EdgeInsets.all(15)),
-                  //StreamBuilder(
-                  // stream: FirebaseFirestore.instance.collection("patient").where("uid",
-                  //   isEqualTo: currentUser.currentUser?.uid).snapshots(),
-
-                  //  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot)
-                  /*    {
-                    if(snapshot.hasData){
-                      return ListView.builder(itemCount: snapshot.data!.docs.length,
-                        shrinkWrap: true, itemBuilder: (context,i) {
-
-
-                          var data = snapshot.data!.docs[i];
-
-                          return UserAccountsDrawerHeader(accountName: Text(data["name"]),
-
-                              accountEmail: Text(data["email"]));
-
-                        },
-                      );
-                    }else{
-                      return const CircularProgressIndicator();
-                    }
-                  },
- */
-
-                  ListTile(
-                    leading: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    ),
-                    title: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Profiletherapist()));
-                      },
-                      child: const Text(
-                        "Profile",
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                    ),
+          color: Color.fromARGB(255, 123, 33, 224),
+          child: SafeArea(
+            child: Column(
+              children: [
+                const Padding(padding: EdgeInsets.all(15)),
+                ListTile(
+                  leading: const Icon(
+                    Icons.person,
+                    color: Colors.white,
                   ),
-                  const Padding(padding: EdgeInsets.all(15)),
-                  /*  ListTile(
-                    leading: const Icon(
-                      Icons.home,
-                      color: Colors.white,
-                    ),
-                    title: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen1()));
-                      },
-                      child: const Text(
-                        "Home",
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                    ),
-                  ), */
-                  const Padding(padding: EdgeInsets.all(15)),
-                  /*    ListTile(
-                    leading: const Icon(
-                      Icons.local_hospital_sharp,
-                      color: Colors.white,
-                    ),
-                    title: ElevatedButton(
-                      onPressed: () {
-                         Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportsPage()),
-              );//  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
-                      },
-                      child: const Text(
-                        "See All Reports",
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                    ),
-                  ), */
-                  const Padding(padding: EdgeInsets.all(15)),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                    ),
-                    title: ElevatedButton(
-                      onPressed: () async {
-                        await auth.signOut(); // Sign out the user
-                        Navigator.pushAndRemoveUntil(
+                  title: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AuthPage()),
-                          (Route<dynamic> route) => false,
-                        );
-                      },
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
+                          MaterialPageRoute(
+                              builder: (context) => Profiletherapist()));
+                    },
+                    child: const Text(
+                      "Profile",
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
                     ),
                   ),
-                ],
-              ),
-            )),
-      ),
-
-      /*appBar: AppBar(
-        title: Text('Patients List'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PatientsList()),
-              );
-          },
-        ),/*
-        actions: [
-          IconButton(
-            icon: Icon(Icons.arrow_forward),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => User()),
-              );
-            },
+                ),
+                const Padding(padding: EdgeInsets.all(15)),
+                ListTile(
+                  leading: const Icon(
+                    Icons.logout,
+                    color: Colors.white,
+                  ),
+                  title: ElevatedButton(
+                    onPressed: () async {
+                      await auth.signOut(); // Sign out the user
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => AuthPage()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                    child: const Text(
+                      "Logout",
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],*/
-      ),*/
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20.0), // Padding for the whole page
+          padding: EdgeInsets.all(20.0),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Align content to the start (left)
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // First part of the page
               Row(
                 children: [
-                  // User icon
                   Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.grey, // Placeholder color for the user icon
+                      color: Colors.grey,
                     ),
                     child: Icon(
                       Icons.person,
@@ -232,20 +166,33 @@ class _PatientsListState extends State<PatientsList> {
                       color: const Color.fromARGB(255, 168, 130, 130),
                     ),
                   ),
-                  SizedBox(
-                      width:
-                          10), // Add some space between the user icon and text
-                  // Doctor name
-                  Text(
-                    'Dr. Ahmad Waleed',
-                    style: TextStyle(fontSize: 18),
+                  SizedBox(width: 10),
+                  FutureBuilder(
+                    future: FirebaseFirestore.instance
+                        .collection('therapist')
+                        .doc(auth.currentUser!.uid)
+                        .get(),
+                    builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (snapshot.hasData && snapshot.data != null) {
+                        String therapistName = snapshot.data!['thName'];
+                        return Text(
+                          'Dr. $therapistName',
+                          style: TextStyle(fontSize: 18),
+                        );
+                      } else {
+                        return Text(
+                          'Dr. Placeholder',
+                          style: TextStyle(fontSize: 18),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),
-              SizedBox(height: 20), // Add some space between the sections
-
-              // Second part of the page
-              // Centered "Patients List" header
+              SizedBox(height: 20),
               Center(
                 child: Text(
                   'Patients List',
@@ -256,9 +203,7 @@ class _PatientsListState extends State<PatientsList> {
                   ),
                 ),
               ),
-              SizedBox(height: 10), // Add some space below the header
-
-              // List of patient names
+              SizedBox(height: 10),
               ListView.builder(
                 shrinkWrap: true,
                 itemCount: patientNames.length,
@@ -273,7 +218,7 @@ class _PatientsListState extends State<PatientsList> {
       bottomNavigationBar: Container(
         width: double.infinity,
         child: Image.asset(
-          './images/bottomIMAGE.png', // Adjust as needed
+          './images/bottomIMAGE.png',
           fit: BoxFit.cover,
         ),
       ),
@@ -289,7 +234,7 @@ class _PatientsListState extends State<PatientsList> {
             height: 30,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.grey, // Placeholder color for the user icon
+              color: Colors.grey,
             ),
             child: Icon(
               Icons.person,
@@ -300,10 +245,9 @@ class _PatientsListState extends State<PatientsList> {
           title: GestureDetector(
             onTap: () {
               if (index == 0) {
-                // Handle click for the first patient
-                Navigator.pushReplacement(
+                Navigator.pushReplacement(      
                   context,
-                  MaterialPageRoute(builder: (context) =>customUser.User()),
+                  MaterialPageRoute(builder: (context) => User3(patientName: patientNames[index])),
                 );
               } else {
                 // Handle click for other patients (if needed)

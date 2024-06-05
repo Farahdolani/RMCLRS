@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,11 +34,14 @@ class _SignupState extends State<Signup> {
       );
 
       // You can also save additional user information (userName, thId) to Firestore if needed
-      // await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
-      //   'userName': userName,
-      //   'thId': thId,
-      //   'email': email,
-      // });
+     await FirebaseFirestore.instance.collection('therapist').doc(userCredential.user?.uid).set({
+       'thName': userName,
+         'thId': thId,
+         'thEmail': email,
+          'rool': 't',
+
+       });
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PatientsList()));
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -48,7 +53,6 @@ class _SignupState extends State<Signup> {
         ),
       );
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen1()));
     } on FirebaseAuthException catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(

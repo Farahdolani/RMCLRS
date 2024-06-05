@@ -1,5 +1,4 @@
-
-
+import 'package:ff/patiantscreen/exercise.dart';
 import 'package:ff/therapisto/report_phase.dart';
 import 'package:flutter/material.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
@@ -9,20 +8,21 @@ import 'package:ff/therapisto/generate_report.dart';
 import 'package:ff/therapisto/send_feedback.dart';
 import 'package:ff/welcome_slider.dart';
 
+class User3 extends StatefulWidget {
+  final String patientName;
+
+  User3({required this.patientName});
 
 
-
-
-class User extends StatefulWidget {
   @override
   _UserState createState() => _UserState();
 }
 
-class _UserState extends State<User> {
+class _UserState extends State<User3> {
   // Placeholder values for the progress
-  int phasesProgress = 0;
-  int exercisesProgress = 0;
-  int overallProgress = 0;
+  double phasesProgress = Exercise.exe/2;
+  double exercisesProgress = Exercise.exe;
+  double overallProgress = Exercise.exe*12.5;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class _UserState extends State<User> {
         ),
       ),
       body: Container(
-        color: Colors.grey[200], // Set background color to gray
+        color: Colors.grey[200],
         padding: EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +51,7 @@ class _UserState extends State<User> {
               height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.grey, // Placeholder color for the profile photo
+                color: Colors.grey,
               ),
               child: Icon(
                 Icons.person,
@@ -75,7 +75,7 @@ class _UserState extends State<User> {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'Zayn Shawahna',
+                    widget.patientName, // Accessing patientName from widget
                     style: TextStyle(fontSize: 22, color: Colors.purple),
                   ),
                 ],
@@ -86,40 +86,37 @@ class _UserState extends State<User> {
               'Phases',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            // Placeholder circular progress indicator with value displayed
             _buildCircularElement(phasesProgress),
-             SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               'Exercises',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            // Placeholder circular progress indicator with value displayed
-            _buildCircularElement(exercisesProgress),
-             SizedBox(height: 10),
+            _buildCircularElement(Exercise.exe),
+            SizedBox(height: 10),
             Text(
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            // Placeholder circular progress indicator with value displayed as percentage
             _buildCircularElement(overallProgress, showPercentage: true),
-             SizedBox(height: 10),
-            // Add some space between progress and buttons
-            SizedBox(height: 5),// Add some space between progress and buttons
+            SizedBox(height: 10),
+            SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align buttons to the sides
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  width: MediaQuery.of(context).size.width / 2 - 30, // Adjust width of button
+                  width: MediaQuery.of(context).size.width / 2 - 30,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), // Add rounded edges
+                    borderRadius: BorderRadius.circular(20),
                     color: Colors.purple,
                   ),
                   child: TextButton(
                     onPressed: () {
-                        Navigator.pushReplacement(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => Repophase()),
-                      );                    },
+                      );
+                    },
                     child: Text(
                       'Generate a report',
                       style: TextStyle(color: Colors.white),
@@ -127,9 +124,9 @@ class _UserState extends State<User> {
                   ),
                 ),
                 Container(
-                  width: MediaQuery.of(context).size.width / 2 - 30, // Adjust width of button
+                  width: MediaQuery.of(context).size.width / 2 - 30,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), // Add rounded edges
+                    borderRadius: BorderRadius.circular(20),
                     color: Colors.purple,
                   ),
                   child: TextButton(
@@ -153,7 +150,7 @@ class _UserState extends State<User> {
     );
   }
 
-  Widget _buildCircularElement(int progressValue, {bool showPercentage = false}) {
+  Widget _buildCircularElement(double progressValue, {bool showPercentage = false}) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -165,12 +162,10 @@ class _UserState extends State<User> {
             border: Border.all(color: Colors.black),
           ),
         ),
-        
         Text(
-          showPercentage ? '$progressValue%' : '$progressValue', // Display the progress value
+          showPercentage ? '$progressValue%' : '$progressValue',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-       
       ],
     );
   }

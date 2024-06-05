@@ -1,7 +1,7 @@
 class UserModel {
   String? email;
   String? password;
-  String? uid;
+  String? pId;
   String? name;
   String? deviceid;
   String? thirapistid;
@@ -9,7 +9,7 @@ class UserModel {
 
 // receiving data
   UserModel(
-      {this.uid,
+      {this.pId,
       this.email,
       this.password,
       this.name,
@@ -18,7 +18,7 @@ class UserModel {
       this.progress});
   factory UserModel.fromMap(map) {
     return UserModel(
-        uid: map['uid'],
+        pId: map['pId'],
         email: map['email'],
         name: map['name'],
         password: map['password'],
@@ -29,7 +29,7 @@ class UserModel {
 // sending data
   Map<String, dynamic> toMap() {
     return {
-      'uid': uid,
+      'pId': pId,
       'name': name,
       'email': email,
       'password': password,

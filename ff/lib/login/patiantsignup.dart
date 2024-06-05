@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +33,15 @@ class _SignupState extends State<Signup> {
         password: password,
       );
 
-      // You can also save additional user information (userName, thId, dId) to Firestore if needed
-      // await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
-      //   'userName': userName,
-      //   'thId': thId,
-      //   'dId': dId,
-      //   'email': email,
-      // });
+      //You can also save additional user information (userName, thId, dId) to Firestore if needed
+       await FirebaseFirestore.instance.collection('patient2').doc(userCredential.user?.uid).set({
+        'name': userName,
+         'pId': thId,
+         'deviceId': dId,
+         'email': email,
+         'rool':'p',
+         'progress':[0,0,0],
+       });
 
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -238,4 +241,14 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
+
+
+
+
+
+
+  
 }
+
+
+
