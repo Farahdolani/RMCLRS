@@ -15,7 +15,7 @@ String Ofline = "Offline";
 
 class HomeScreen1 extends StatefulWidget {
   const HomeScreen1({super.key});
-
+  static double exe = 0;
   @override
   State<HomeScreen1> createState() => _HomeScreen1();
 }
@@ -23,49 +23,104 @@ class HomeScreen1 extends StatefulWidget {
 class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
   late Map<String, dynamic> userMap;
   final FirebaseAuth auth = FirebaseAuth.instance; // FirebaseAuth instance
-  // Function to retrieve user data and populate the UserData model
-  
 
-
-Future<UserModel> getUserData() async {
-  try {
-    // Get the current user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      // Retreve the user's data from Firestore
-      final userDoc = await FirebaseFirestore.instance.collection('patient2').doc(user.uid).get();
-      print(user.uid);
-            if (userDoc.exists) {
-        final userData = userDoc.data();
-        if (userData != null) {
-          // Create a UserData instance from the retrieved data
-          return UserModel.fromMap({
-            'pId': user.uid,
-            'name': userData['name'],
-            'email': userData['email'],
-            
-          });
+  Future<UserModel> getUserData() async {
+    try {
+      // Get the current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Retreve the user's data from Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection('patient2')
+            .doc(user.uid)
+            .get();
+        print(user.uid);
+        if (userDoc.exists) {
+          final userData = userDoc.data();
+          if (userData != null) {
+            // Create a UserData instance from the retrieved data
+            return UserModel.fromMap({
+              'pId': user.uid,
+              'name': userData['name'],
+              'email': userData['email'],
+            });
+          }
         }
       }
+    } catch (e) {
+      // Handle any errors that occurred during the process
+      print('Error retrieving user data: $e');
     }
-  } catch (e) {
-    // Handle any errors that occurred during the process
-    print('Error retrieving user data: $e');
+    // If there was an error or the user data couldn't be retrieved, return a default UserData instance
+    return UserModel(name: '', email: '', pId: '');
   }
-  // If there was an error or the user data couldn't be retrieved, return a default UserData instance
-  return UserModel(name: '', email: '', pId: '');
-}
 
+  Future<String> getUserDataString() async {
+    final userData = await getUserData();
+    print(userData.name);
+    return 'Welcome ${userData.name} to RMCLRS!';
+  }
+
+  Future<void> fetchAndUpdateProgress() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("No user is signed in.");
+        return;
+      }
+
+      // Get a reference to the patient document
+      DocumentReference patientRef =
+          FirebaseFirestore.instance.collection('patient2').doc(user.uid);
+
+      // Fetch the current document snapshot
+      DocumentSnapshot snapshot = await patientRef.get();
+
+      if (snapshot.exists) {
+        // Get the current progress array
+        List<dynamic> progressArray = snapshot['progress'];
+
+        // Store the value at the specified index in HomeScreen1.exe
+
+        HomeScreen1.exe = progressArray[1];
+        setState(() {});
+
+        print("Fetched progress: ${HomeScreen1.exe}");
+      } else {
+        print("Patient document does not exist");
+      }
+    } catch (e) {
+      print("Failed to fetch and update progress: $e");
+    }
+  }
+
+  void updateProgressAtIndex() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Get a reference to the patient document
+    DocumentReference patientRef =
+        FirebaseFirestore.instance.collection('patient2').doc(user?.uid);
+
+    // Fetch the current document snapshot
+    DocumentSnapshot snapshot = await patientRef.get();
+
+    // Get the current progress array
+    List<dynamic> progressArray = snapshot['progress'];
+
+    // Update the element at the specified index
+    progressArray[1] = HomeScreen1.exe;
+     progressArray[2] = HomeScreen1.exe*12.5;
+
+    // Update the document with the modified array
+    await patientRef.update({'progress': progressArray});
   
-Future<String> getUserDataString() async {
-  final userData = await getUserData();
-  print(userData.name);
-  return 'Welcome ${userData.name} to RMCLRS!';
-}
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+    fetchAndUpdateProgress();
   }
 
   void setStatus(String status) async {
@@ -86,7 +141,7 @@ Future<String> getUserDataString() async {
   void patientOnline(String onof) async {
     // Update the patient's online status in Firebase Realtime Database
   }
-double overallProgress = Exercise.exe*12.5;
+  double overallProgress = HomeScreen1.exe * 12.5;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -181,7 +236,8 @@ double overallProgress = Exercise.exe*12.5;
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ReportsPage2()),
+                          MaterialPageRoute(
+                              builder: (context) => ReportsPage2()),
                         );
                       },
                       child: const Text(
@@ -201,7 +257,9 @@ double overallProgress = Exercise.exe*12.5;
                     ),
                     title: ElevatedButton(
                       onPressed: () async {
+                        updateProgressAtIndex();
                         await auth.signOut(); // Sign out the user
+
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => AuthPage()),
@@ -257,69 +315,70 @@ double overallProgress = Exercise.exe*12.5;
                   ],
                 )),
             Container(
-  margin: const EdgeInsets.only(top: 20),
-  child: Center(
-    child: FutureBuilder<String>(
-      future: getUserDataString(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text(
-            'Loading...',
-            style: TextStyle(
-              color: const Color.fromARGB(255, 255, 20, 20),
-              fontWeight: FontWeight.bold,
+              margin: const EdgeInsets.only(top: 20),
+              child: Center(
+                child: FutureBuilder<String>(
+                  future: getUserDataString(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        'Loading...',
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 255, 20, 20),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      return Text(
+                        snapshot.data!,
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 19, 78, 142),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else {
+                      return Text(
+                        'Error retrieving user data',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 102, 211, 29),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
             ),
-          );
-        } else if (snapshot.hasData) {
-          return Text(
-            snapshot.data!,
-            style: TextStyle(
-              color: Color.fromARGB(255, 19, 78, 142),
-              fontWeight: FontWeight.bold,
-            ),
-          );
-        } else {
-          return Text(
-            'Error retrieving user data',
-            style: TextStyle(
-              color: Color.fromARGB(255, 102, 211, 29),
-              fontWeight: FontWeight.bold,
-            ),
-          );
-        }
-      },
-    ),
-  ),
-),
             SizedBox(
               height: 50,
             ),
             Center(
-  child: Container(
-    width: 150, // Adjust the width and height for the desired size
-    height: 150,
-    child: Stack(
-      alignment: Alignment.center,
-      children: [
-        CircularProgressIndicator(
-          value: overallProgress / 100,
-          valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 75, 237, 25)),
-          strokeWidth: 100, // Increase the strokeWidth for a larger indicator
-          backgroundColor: Color.fromARGB(172, 72, 72, 72),
-        ),
-        Text(
-          "${overallProgress.round()}%",
-          style: TextStyle(
-            fontSize: 24, // Adjust the size as needed
-            fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(255, 245, 245, 245),
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
+              child: Container(
+                width: 150, // Adjust the width and height for the desired size
+                height: 150,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: (HomeScreen1.exe * 12.5) / 100,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Color.fromARGB(255, 75, 237, 25)),
+                      strokeWidth:
+                          100, // Increase the strokeWidth for a larger indicator
+                      backgroundColor: Color.fromARGB(172, 72, 72, 72),
+                    ),
+                    Text(
+                      "${HomeScreen1.exe * 12.5}%",
+                      style: TextStyle(
+                        fontSize: 24, // Adjust the size as needed
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(255, 245, 245, 245),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Center(
               child: Text('YOUR PROGRESS !'),
             ),

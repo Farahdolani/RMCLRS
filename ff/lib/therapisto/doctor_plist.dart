@@ -249,7 +249,7 @@ class _PatientsListState extends State<PatientsList> {
                   context,
                   MaterialPageRoute(builder: (context) => User3(patientName: patientNames[index])),
                 );
-              } else {
+              } else  {
                 // Handle click for other patients (if needed)
               }
             },

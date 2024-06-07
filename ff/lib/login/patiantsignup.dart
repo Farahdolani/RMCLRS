@@ -40,7 +40,7 @@ class _SignupState extends State<Signup> {
          'deviceId': dId,
          'email': email,
          'rool':'p',
-         'progress':[0,0,0],
+         'progress':[1,0,0],
        });
 
       ScaffoldMessenger.of(context).showSnackBar(

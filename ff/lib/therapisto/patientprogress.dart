@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ff/patiantscreen/exercise.dart';
+import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/therapisto/report_phase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:ff/patiantscreen/exercise_learn.dart';
@@ -20,9 +23,48 @@ class User3 extends StatefulWidget {
 
 class _UserState extends State<User3> {
   // Placeholder values for the progress
-  double phasesProgress = Exercise.exe/2;
-  double exercisesProgress = Exercise.exe;
-  double overallProgress = Exercise.exe*12.5;
+  double phasesProgress = HomeScreen1.exe/2;
+  double exercisesProgress = HomeScreen1.exe;
+  double overallProgress = HomeScreen1.exe*12.5;
+
+Future<void> fetchAndUpdateProgress() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("No user is signed in.");
+        return;
+      }
+
+      // Get a reference to the patient document
+      DocumentReference patientRef =
+          FirebaseFirestore.instance.collection('patient2').doc(user.uid);
+
+      // Fetch the current document snapshot
+      DocumentSnapshot snapshot = await patientRef.get();
+
+      if (snapshot.exists) {
+        // Get the current progress array
+        List<dynamic> progressArray = snapshot['progress'];
+
+        // Store the value at the specified index in HomeScreen1.exe
+
+        HomeScreen1.exe = progressArray[1];
+        setState(() {});
+
+        print("Fetched progress: ${HomeScreen1.exe}");
+      } else {
+        print("Patient document does not exist");
+      }
+    } catch (e) {
+      print("Failed to fetch and update progress: $e");
+    }
+  }
+ @override
+  void initState() {
+   
+    super.initState();
+    fetchAndUpdateProgress();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,19 +128,19 @@ class _UserState extends State<User3> {
               'Phases',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            _buildCircularElement(phasesProgress),
+            _buildCircularElement(1),
             SizedBox(height: 10),
             Text(
               'Exercises',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            _buildCircularElement(Exercise.exe),
+            _buildCircularElement(HomeScreen1.exe),
             SizedBox(height: 10),
             Text(
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            _buildCircularElement(overallProgress, showPercentage: true),
+            _buildCircularElement(HomeScreen1.exe*12.5, showPercentage: true),
             SizedBox(height: 10),
             SizedBox(height: 5),
             Row(

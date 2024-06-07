@@ -1,5 +1,3 @@
-
-
 import 'package:ff/patiantscreen/exercise.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/patiantscreen/pat_generate_report.dart';
@@ -11,10 +9,8 @@ import 'package:ff/patiantscreen/exercise_learn2.dart';
 import 'package:ff/therapisto/generate_report.dart';
 import 'package:ff/therapisto/send_feedback.dart';
 import 'package:ff/welcome_slider.dart';
-
-
-
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class User1 extends StatefulWidget {
   @override
@@ -23,9 +19,42 @@ class User1 extends StatefulWidget {
 
 class _UserState extends State<User1> {
   // Placeholder values for the progress
-  double phasesProgress = Exercise.exe/2;
-  double exercisesProgress = Exercise.exe;
-  double overallProgress = Exercise.exe*12.5;
+  double phasesProgress = HomeScreen1.exe / 2;
+  double exercisesProgress = HomeScreen1.exe;
+  double overallProgress = HomeScreen1.exe * 12.5;
+
+  String userName = "Loading...";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+  }
+
+  Future<void> fetchUserName() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('patient2')
+            .doc(user.uid)
+            .get();
+        if (userDoc.exists) {
+          setState(() {
+            userName = userDoc.data()?['name'] ?? "Unknown User";
+          });
+        } else {
+          setState(() {
+            userName = "User not found";
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        userName = "Error loading user";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +65,8 @@ class _UserState extends State<User1> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
-              context, 
-              MaterialPageRoute(builder: (context) => HomeScreen1())
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen1()),
             );
           },
         ),
@@ -78,7 +107,7 @@ class _UserState extends State<User1> {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'Zayn Shawahna',
+                    userName,
                     style: TextStyle(fontSize: 22, color: Colors.purple),
                   ),
                 ],
@@ -90,19 +119,19 @@ class _UserState extends State<User1> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             // Placeholder circular progress indicator with value displayed
-            _buildCircularElement(phasesProgress),
+            _buildCircularElement(1),
             Text(
               'Exercises',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             // Placeholder circular progress indicator with value displayed
-            _buildCircularElement(Exercise.exe),
+            _buildCircularElement(HomeScreen1.exe),
             Text(
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             // Placeholder circular progress indicator with value displayed as percentage
-            _buildCircularElement(overallProgress, showPercentage: true),
+            _buildCircularElement(HomeScreen1.exe * 12.5, showPercentage: true),
             // Add some space between progress and buttons
             Spacer(),
             Container(
@@ -143,7 +172,7 @@ class _UserState extends State<User1> {
           ),
         ),
         Text(
-          showPercentage ? '$progressValue%' : '$progressValue', // Display the progress value
+          showPercentage ? '${progressValue.toStringAsFixed(2)}%' : '${progressValue.toStringAsFixed(2)}', // Display the progress value
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],

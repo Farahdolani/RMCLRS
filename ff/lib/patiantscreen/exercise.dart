@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ff/patiantscreen/home1.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -12,8 +15,6 @@ class Exercise extends StatefulWidget {
   _ExerciseState createState() => _ExerciseState();
 
   // Static variable to track the repetitions
-  static double exe = 0;
-  
 }
 
 class _ExerciseState extends State<Exercise> {
@@ -30,6 +31,7 @@ class _ExerciseState extends State<Exercise> {
   void initState() {
     super.initState();
     _startTimer();
+    // fetchAndUpdateProgress();  // Fetch the progress when the widget is initialized
   }
 
   @override
@@ -55,6 +57,26 @@ class _ExerciseState extends State<Exercise> {
         }
       });
     });
+  }
+
+  void updateProgressAtIndex() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Get a reference to the patient document
+    DocumentReference patientRef =
+        FirebaseFirestore.instance.collection('patient2').doc(user?.uid);
+
+    // Fetch the current document snapshot
+    DocumentSnapshot snapshot = await patientRef.get();
+
+    // Get the current progress array
+    List<dynamic> progressArray = snapshot['progress'];
+
+    // Update the element at the specified index
+    progressArray[1] = HomeScreen1.exe;
+
+    // Update the document with the modified array
+    await patientRef.update({'progress': progressArray});
   }
 
   void _stopExercise() {
@@ -116,8 +138,9 @@ class _ExerciseState extends State<Exercise> {
                       _completedSquares[i] = true;
                       _completedReps--;
                       if (_completedReps == 0) {
-                        Exercise.exe++; // Increment the global variable
-                        print(Exercise.exe);
+                        HomeScreen1.exe++; // Increment the global variable
+                        print(HomeScreen1.exe);
+                        updateProgressAtIndex();
                       }
                       break; // Break after coloring one square
                     }
@@ -147,7 +170,8 @@ class _ExerciseState extends State<Exercise> {
                   height: 15,
                   margin: EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: _completedSquares[index] ? Colors.green : Colors.grey,
+                    color:
+                        _completedSquares[index] ? Colors.green : Colors.grey,
                     border: Border.all(color: Colors.black),
                   ),
                 ),
@@ -183,7 +207,8 @@ class _ExerciseState extends State<Exercise> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: _exerciseStopped ? Colors.green : Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: _exerciseStopped ? Colors.green : Colors.red,
               ),
             ),
           ],

@@ -104,10 +104,11 @@ class _phasesexesState extends State<phasesexes> {
                     ),
                     title: ElevatedButton(
                       onPressed: () {
-                         Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportsPage2()),
-              );//  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ReportsPage2()),
+                        ); //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
                       },
                       child: const Text(
                         "See All Reports",
@@ -125,7 +126,7 @@ class _phasesexesState extends State<phasesexes> {
                       color: Colors.white,
                     ),
                     title: ElevatedButton(
-                       onPressed: () async {
+                      onPressed: () async {
                         await auth.signOut(); // Sign out the user
                         Navigator.pushAndRemoveUntil(
                           context,
@@ -156,11 +157,10 @@ class _phasesexesState extends State<phasesexes> {
               child: ElevatedButton(
                 onPressed: () {
                   // Button 1 action
-                   Navigator.pushReplacement(
-              context, 
-              MaterialPageRoute(builder: (context) => ExerciseLearnPage())
-              
-            );
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ExerciseLearnPage()));
                 },
                 /* style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
@@ -178,11 +178,10 @@ class _phasesexesState extends State<phasesexes> {
               child: ElevatedButton(
                 onPressed: () {
                   // Button 2 action
-                   Navigator.pushReplacement(
-              context, 
-              MaterialPageRoute(builder: (context) => ExerciseLearnPage2())
-              
-            );
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ExerciseLearnPage2()));
                 },
                 /* style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
