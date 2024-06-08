@@ -2,6 +2,11 @@ import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:flutter/material.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ProfileSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -90,8 +95,7 @@ class ProfileSettings extends StatelessWidget {
                       ),
                       title: ElevatedButton(
                         onPressed: () {
-                          // FirebaseAuth.instance.signOut();
-
+                          FirebaseAuth.instance.signOut();
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -116,39 +120,59 @@ class ProfileSettings extends StatelessWidget {
   }
 }
 
-class ProfileSettingsScreen extends StatelessWidget {
+class ProfileSettingsScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.all(16.0),
-      children: [
-        ProfileSettingItem(
-          title: 'Name',
-          value: 'John Doe',
-          onPressed: () => _showEditDialog(context, 'Name'),
-        ),
-        ProfileSettingItem(
-          title: 'Email',
-          value: 'john.doe@example.com',
-          onPressed: () => _showEditDialog(context, 'Email'),
-        ),
-        ProfileSettingItem(
-          title: 'Device ID',
-          value: 'ABC123DEF456',
-          onPressed: () => _showEditDialog(context, 'Device ID'),
-        ),
-        ProfileSettingItem(
-          title: 'Password',
-          value: '********',
-          onPressed: () => _showEditDialog(context, 'Password'),
-        ),
-      ],
-    );
+  _ProfileSettingsScreenState createState() => _ProfileSettingsScreenState();
+}
+
+class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? _name;
+  String? _email;
+  String? _deviceId;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
   }
 
-  void _showEditDialog(BuildContext context, String fieldName) {
+  Future<void> _fetchUserData() async {
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      DocumentSnapshot doc =
+          await _firestore.collection('patient2').doc(user.uid).get();
+
+      if (doc.exists) {
+        setState(() {
+          _name = doc['name'];
+          _email = doc['email'];
+          _deviceId = doc['deviceId'];
+          _isLoading = false;
+        });
+      } else {
+        print("Document does not exist");
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } else {
+      print("User is not authenticated");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showEditDialog(
+      BuildContext context, String fieldName, String initialValue) {
     TextEditingController passwordController = TextEditingController();
-    TextEditingController newValueController = TextEditingController();
+    TextEditingController newValueController =
+        TextEditingController(text: initialValue);
 
     showDialog(
       context: context,
@@ -193,13 +217,50 @@ class ProfileSettingsScreen extends StatelessWidget {
             child: Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              // Check current password
+            onPressed: () async {
               String currentPassword = passwordController.text;
+
               if (currentPassword.isNotEmpty) {
-                // Proceed to save changes
-                // TODO: Implement logic to verify password and update the field
-                Navigator.of(context).pop();
+                User? user = _auth.currentUser;
+
+                if (user != null) {
+                  AuthCredential credential = EmailAuthProvider.credential(
+                    email: user.email!,
+                    password: currentPassword,
+                  );
+
+                  try {
+                    await user.reauthenticateWithCredential(credential);
+
+                    if (fieldName == 'Password') {
+                      await user.updatePassword(newValueController.text);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Password updated successfully'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      await _updateUserField(
+                          user.uid, fieldName, newValueController.text);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$fieldName updated successfully'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+
+                    Navigator.of(context).pop();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update $fieldName: $e'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -214,6 +275,48 @@ class ProfileSettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _updateUserField(
+      String uid, String fieldName, String newValue) async {
+    await _firestore
+        .collection('patient2')
+        .doc(uid)
+        .update({fieldName.toLowerCase(): newValue});
+    _fetchUserData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : ListView(
+            padding: EdgeInsets.all(16.0),
+            children: [
+              ProfileSettingItem(
+                title: 'Name',
+                value: _name ?? 'Loading...',
+                onPressed: () => _showEditDialog(context, 'Name', _name ?? ''),
+              ),
+              ProfileSettingItem(
+                title: 'Email',
+                value: _email ?? 'Loading...',
+                onPressed: () =>
+                    _showEditDialog(context, 'Email', _email ?? ''),
+              ),
+              ProfileSettingItem(
+                title: 'Device ID',
+                value: _deviceId ?? 'Loading...',
+                onPressed: () =>
+                    _showEditDialog(context, 'Device ID', _deviceId ?? ''),
+              ),
+              ProfileSettingItem(
+                title: 'Password',
+                value: '********',
+                onPressed: () => _showEditDialog(context, 'Password', ''),
+              ),
+            ],
+          );
   }
 }
 

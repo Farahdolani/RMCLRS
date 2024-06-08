@@ -1,33 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ff/patiantscreen/exercise.dart';
+import 'package:flutter/material.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/therapisto/report_phase.dart';
+import 'package:ff/therapisto/send_feedback.dart'; // Import the SendFeedbackPage
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:ff/therapisto/doctor_plist.dart';
-import 'package:ff/patiantscreen/exercise_learn.dart';
-import 'package:ff/patiantscreen/exercise_learn2.dart';
-import 'package:ff/therapisto/generate_report.dart';
-import 'package:ff/therapisto/send_feedback.dart';
-import 'package:ff/welcome_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ff/therapisto/doctor_plist.dart'; // Import the PatientsList page
 
 class User3 extends StatefulWidget {
   final String patientName;
+  final String patientDocId; // Add userUid to hold the patient's user_uid
 
-  User3({required this.patientName});
-
+  User3({required this.patientName,  required String this.patientDocId}); // Updated constructor
 
   @override
-  _UserState createState() => _UserState();
+  _User3State createState() => _User3State();
 }
 
-class _UserState extends State<User3> {
+class _User3State extends State<User3> {
   // Placeholder values for the progress
-  double phasesProgress = HomeScreen1.exe/2;
+  double phasesProgress = HomeScreen1.exe / 2;
   double exercisesProgress = HomeScreen1.exe;
-  double overallProgress = HomeScreen1.exe*12.5;
+  double overallProgress = HomeScreen1.exe * 12.5;
 
-Future<void> fetchAndUpdateProgress() async {
+  Future<void> fetchAndUpdateProgress() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -37,7 +32,7 @@ Future<void> fetchAndUpdateProgress() async {
 
       // Get a reference to the patient document
       DocumentReference patientRef =
-          FirebaseFirestore.instance.collection('patient2').doc(user.uid);
+          FirebaseFirestore.instance.collection('patient2').doc(widget.patientDocId);
 
       // Fetch the current document snapshot
       DocumentSnapshot snapshot = await patientRef.get();
@@ -47,8 +42,8 @@ Future<void> fetchAndUpdateProgress() async {
         List<dynamic> progressArray = snapshot['progress'];
 
         // Store the value at the specified index in HomeScreen1.exe
-
         HomeScreen1.exe = progressArray[1];
+        
         setState(() {});
 
         print("Fetched progress: ${HomeScreen1.exe}");
@@ -59,9 +54,9 @@ Future<void> fetchAndUpdateProgress() async {
       print("Failed to fetch and update progress: $e");
     }
   }
- @override
+
+  @override
   void initState() {
-   
     super.initState();
     fetchAndUpdateProgress();
   }
@@ -75,8 +70,8 @@ Future<void> fetchAndUpdateProgress() async {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
-              context, 
-              MaterialPageRoute(builder: (context) => PatientsList())
+              context,
+              MaterialPageRoute(builder: (context) => PatientsList()),
             );
           },
         ),
@@ -140,7 +135,7 @@ Future<void> fetchAndUpdateProgress() async {
               'Overall Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            _buildCircularElement(HomeScreen1.exe*12.5, showPercentage: true),
+            _buildCircularElement(HomeScreen1.exe * 12.5, showPercentage: true),
             SizedBox(height: 10),
             SizedBox(height: 5),
             Row(
@@ -175,7 +170,7 @@ Future<void> fetchAndUpdateProgress() async {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => SendFeedbackPage()),
+                        MaterialPageRoute(builder: (context) => SendFeedbackPage(  widget.patientDocId)),
                       );
                     },
                     child: Text(

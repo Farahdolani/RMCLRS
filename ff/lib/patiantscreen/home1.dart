@@ -162,7 +162,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
             ),
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => noti()));
+                  context, MaterialPageRoute(builder: (context) => Noti()));
             },
           ),
           GestureDetector(

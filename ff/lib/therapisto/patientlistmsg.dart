@@ -1,16 +1,18 @@
+import 'package:ff/therapisto/nottherapist.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ff/login/patiantlogin.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:ff/patiantscreen/profile.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
-class Noti extends StatelessWidget {
-  const Noti({super.key});
+class Patientlistmsg extends StatelessWidget {
+  final String patientDocId;
+
+  Patientlistmsg({required this.patientDocId});
 
   @override
   Widget build(BuildContext context) {
-    final int numberOfContainers = 3;
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -53,7 +55,8 @@ class Noti extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfileSettings()),
+                        MaterialPageRoute(
+                            builder: (context) => ProfileSettings()),
                       );
                     },
                     child: const Text(
@@ -138,76 +141,87 @@ class Noti extends StatelessWidget {
           ),
         ),
       ),
-      body:PatientMessagesPage() 
+      body: PatientMessagesPage(patientDocId: patientDocId),
     );
   }
 }
 
 class PatientMessagesPage extends StatelessWidget {
+  final String patientDocId;
 
+  PatientMessagesPage({required this.patientDocId}) : super();
 
-  PatientMessagesPage() : super();
+  final user = FirebaseAuth.instance.currentUser;
 
- final user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Patient Messages'),
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('patient2')
-            .doc(user?.uid)
-            .collection('feedbacks')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Nottherapist()),
+        );
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Messages:'),
+        ),
+        body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('patient2')
+              .doc(patientDocId)
+              .collection('feedbacks')
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-          if (snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No messages available'));
-          }
+            if (snapshot.data!.docs.isEmpty) {
+              return Center(child: Text('No messages available'));
+            }
 
-          return ListView(
-            padding: EdgeInsets.all(20),
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
-              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-              Timestamp timestamp = data['timestamp'] as Timestamp;
+            return ListView(
+              padding: EdgeInsets.all(20),
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                Map<String, dynamic> data =
+                    document.data() as Map<String, dynamic>;
+                Timestamp timestamp = data['timestamp'] as Timestamp;
 
-              return Container(
-                margin: EdgeInsets.only(bottom: 20),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Message:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 5),
-                    Text(data['message'] ?? ''),
-                    SizedBox(height: 10),
-                    Text(
-                      'Sent on: ${timestamp.toDate()}',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          );
-        },
+                return Container(
+                  margin: EdgeInsets.only(bottom: 20),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Message:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 5),
+                      Text(data['message'] ?? ''),
+                      SizedBox(height: 10),
+                      Text(
+                        'Sent on: ${timestamp.toDate()}',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
     );
   }

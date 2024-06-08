@@ -8,6 +8,7 @@ import 'package:ff/patiantscreen/angle.dart';
 
 class Exercise extends StatefulWidget {
   final String exerciseName;
+  static double plus = 0;
 
   const Exercise({Key? key, required this.exerciseName}) : super(key: key);
 
@@ -74,6 +75,8 @@ class _ExerciseState extends State<Exercise> {
 
     // Update the element at the specified index
     progressArray[1] = HomeScreen1.exe;
+    progressArray[2] = HomeScreen1.exe *12.5;
+  
 
     // Update the document with the modified array
     await patientRef.update({'progress': progressArray});
@@ -139,6 +142,7 @@ class _ExerciseState extends State<Exercise> {
                       _completedReps--;
                       if (_completedReps == 0) {
                         HomeScreen1.exe++; // Increment the global variable
+                        Exercise.plus++;
                         print(HomeScreen1.exe);
                         updateProgressAtIndex();
                       }

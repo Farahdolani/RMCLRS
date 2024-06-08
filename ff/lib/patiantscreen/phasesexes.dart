@@ -1,4 +1,6 @@
 import 'package:ff/login/patiantlogin.dart';
+import 'package:ff/patiantscreen/ReportOne.dart';
+import 'package:ff/patiantscreen/exercise.dart';
 import 'package:ff/patiantscreen/exercise_learn.dart';
 import 'package:ff/patiantscreen/exercise_learn2.dart';
 import 'package:ff/patiantscreen/home1.dart';
@@ -15,6 +17,9 @@ class phasesexes extends StatefulWidget {
 }
 
 class _phasesexesState extends State<phasesexes> {
+  int buttonEnabled = 2; // Initialize the variable
+  double  flag = HomeScreen1.exe;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +197,29 @@ class _phasesexesState extends State<phasesexes> {
               ),
             ),
             SizedBox(
-              height: 50,
+              height: 200,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 77, 163, 55), // Set the button color to red
+                ),
+                onPressed: Exercise.plus == 2
+                    ? () {
+                        // Button 3 action
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OneReport()));
+                        print("Button 3 pressed");
+                      }
+                    : null,
+                child: Text(
+                  'Daily Report !',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ],
         ),
