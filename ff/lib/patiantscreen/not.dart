@@ -14,7 +14,7 @@ class Noti extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Color.fromARGB(255, 123, 33, 224),
+        backgroundColor:Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -39,7 +39,7 @@ class Noti extends StatelessWidget {
       ),
       drawer: Drawer(
         child: Container(
-          color: Color.fromARGB(255, 123, 33, 224),
+          color: Colors.purple,
           child: SafeArea(
             child: Column(
               children: [

@@ -13,12 +13,14 @@ class ProfileSettings extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Profile Settings'),
-          backgroundColor: Color.fromARGB(255, 123, 33, 224),
+          title: Text('Profile Settings',style: TextStyle(
+    color: Colors.white,
+  ),),
+          backgroundColor: Colors.purple,
         ),
         drawer: Drawer(
           child: Container(
-              color: Color.fromARGB(255, 123, 33, 224),
+              color:Colors.purple,
               child: SafeArea(
                 child: Column(
                   children: [

@@ -149,7 +149,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Color.fromARGB(255, 123, 33, 224),
+        backgroundColor:Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -178,7 +178,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
       ),
       drawer: Drawer(
         child: Container(
-            color: Color.fromARGB(255, 123, 33, 224),
+            color: Colors.purple,
             child: SafeArea(
               child: Column(
                 children: [
@@ -396,7 +396,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.blue), // Set the background color
+                       Colors.purple), // Set the background color
                   ),
                   child: Text(
                     'Go To Phases',
@@ -421,7 +421,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.blue), // Set the background color
+                        Colors.purple), // Set the background color
                   ),
                   child: Text(
                     'Show Your Progress',

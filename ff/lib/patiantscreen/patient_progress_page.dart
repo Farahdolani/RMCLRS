@@ -29,6 +29,40 @@ class _UserState extends State<User1> {
   void initState() {
     super.initState();
     fetchUserName();
+    fetchAndUpdateProgress();
+  }
+
+  Future<void> fetchAndUpdateProgress() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("No user is signed in.");
+        return;
+      }
+
+      // Get a reference to the patient document
+      DocumentReference patientRef =
+          FirebaseFirestore.instance.collection('patient2').doc(user.uid);
+
+      // Fetch the current document snapshot
+      DocumentSnapshot snapshot = await patientRef.get();
+
+      if (snapshot.exists) {
+        // Get the current progress array
+        List<dynamic> progressArray = snapshot['progress'];
+
+        // Store the value at the specified index in HomeScreen1.exe
+
+        HomeScreen1.exe = progressArray[1];
+        setState(() {});
+
+        print("Fetched progress: ${HomeScreen1.exe}");
+      } else {
+        print("Patient document does not exist");
+      }
+    } catch (e) {
+      print("Failed to fetch and update progress: $e");
+    }
   }
 
   Future<void> fetchUserName() async {
@@ -159,7 +193,8 @@ class _UserState extends State<User1> {
     );
   }
 
-  Widget _buildCircularElement(double progressValue, {bool showPercentage = false}) {
+  Widget _buildCircularElement(double progressValue,
+      {bool showPercentage = false}) {
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -172,7 +207,9 @@ class _UserState extends State<User1> {
           ),
         ),
         Text(
-          showPercentage ? '${progressValue.toStringAsFixed(2)}%' : '${progressValue.toStringAsFixed(2)}', // Display the progress value
+          showPercentage
+              ? '${progressValue.toStringAsFixed(2)}%'
+              : '${progressValue.toStringAsFixed(2)}', // Display the progress value
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],

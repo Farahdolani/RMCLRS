@@ -18,7 +18,7 @@ class phasesexes extends StatefulWidget {
 
 class _phasesexesState extends State<phasesexes> {
   int buttonEnabled = 2; // Initialize the variable
-  double  flag = HomeScreen1.exe;
+  double flag = HomeScreen1.exe;
 
   @override
   Widget build(BuildContext context) {
@@ -203,12 +203,14 @@ class _phasesexesState extends State<phasesexes> {
               width: MediaQuery.of(context).size.width / 2,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 77, 163, 55), // Set the button color to red
+                  backgroundColor: Color.fromARGB(
+                      255, 77, 163, 55), // Set the button color to red
                 ),
-                onPressed: Exercise.plus == 2
+                onPressed: Exercise.plus >= 2
                     ? () {
+                        print(Exercise.plus);
                         // Button 3 action
-                         Navigator.push(
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => OneReport()));

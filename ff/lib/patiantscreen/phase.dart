@@ -20,7 +20,7 @@ class _phaseState extends State<phase> {
       appBar: AppBar(
         elevation: 0.0,
         //  backgroundColor: Theme.of(context).primaryColor,
-        backgroundColor: Color.fromARGB(255, 123, 33, 224),
+        backgroundColor:Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -45,7 +45,7 @@ class _phaseState extends State<phase> {
       ),
       drawer: Drawer(
         child: Container(
-            color: Color.fromARGB(255, 123, 33, 224),
+            color: Colors.purple,
             child: SafeArea(
               child: Column(
                 children: [
