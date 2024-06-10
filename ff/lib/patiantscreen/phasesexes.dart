@@ -26,7 +26,7 @@ class _phasesexesState extends State<phasesexes> {
       appBar: AppBar(
         elevation: 0.0,
         //  backgroundColor: Theme.of(context).primaryColor,
-        backgroundColor: Color.fromARGB(255, 123, 33, 224),
+        backgroundColor: Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -51,7 +51,7 @@ class _phasesexesState extends State<phasesexes> {
       ),
       drawer: Drawer(
         child: Container(
-            color: Color.fromARGB(255, 123, 33, 224),
+            color:Colors.purple,
             child: SafeArea(
               child: Column(
                 children: [
@@ -203,10 +203,9 @@ class _phasesexesState extends State<phasesexes> {
               width: MediaQuery.of(context).size.width / 2,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(
-                      255, 77, 163, 55), // Set the button color to red
+                  backgroundColor:Color.fromARGB(255, 8, 224, 26), // Set the button color to red
                 ),
-                onPressed: Exercise.plus >= 2
+                onPressed: HomeScreen1.exe== 8 ||HomeScreen1.exe== 0
                     ? () {
                         print(Exercise.plus);
                         // Button 3 action

@@ -12,7 +12,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+   
+    options: FirebaseOptions(
+      apiKey: 'AIzaSyD6bTqBAjWKazYmknTMLE_JzM8EN0WowSg', // Your actual API key
+      appId: '1:681089735002:android:e0908d7c6c16febf093b63', // Your actual App ID
+      messagingSenderId: 'your_messaging_sender_id', // Your actual Messaging Sender ID
+      projectId: 'rmclrs', // Your actual Project ID
+      databaseURL: 'https://rmclrs-default-rtdb.firebaseio.com', // Your actual Database URL
+    ),
 );
   //FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   runApp(const MyApp());

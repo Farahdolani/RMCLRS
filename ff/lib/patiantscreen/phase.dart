@@ -4,6 +4,8 @@ import 'package:ff/patiantscreen/pat_generate_report.dart';
 import 'package:ff/patiantscreen/phasesexes.dart';
 import 'package:ff/patiantscreen/profile.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class phase extends StatefulWidget {
@@ -14,13 +16,16 @@ class phase extends StatefulWidget {
 }
 
 class _phaseState extends State<phase> {
+
+  @override
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
         //  backgroundColor: Theme.of(context).primaryColor,
-        backgroundColor:Colors.purple,
+        backgroundColor: Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -104,9 +109,10 @@ class _phaseState extends State<phase> {
                     title: ElevatedButton(
                       onPressed: () {
                         Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportsPage2()),
-              ); //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ReportsPage2()),
+                        ); //  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen1()));
                       },
                       child: const Text(
                         "See All Reports",
@@ -155,6 +161,9 @@ class _phaseState extends State<phase> {
               child: ElevatedButton(
                 onPressed: () {
                   // Button 1 action
+
+                  phaseStart();
+
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -225,5 +234,22 @@ class _phaseState extends State<phase> {
         ),
       ),
     );
+  }
+
+  Future<void> phaseStart() async {
+    try {
+      // Ensure Firebase is initialized
+   
+
+      // Reference to the EMG readings in the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref('phase1');
+
+      // Set the value of 'phase1' to true
+      await ref.set(false);
+
+      // Listen to changes in the data (code for this would go here if needed)
+    } catch (e) {
+      print('Error : $e');
+    }
   }
 }

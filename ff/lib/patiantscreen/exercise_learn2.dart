@@ -1,4 +1,5 @@
 import 'package:ff/patiantscreen/phasesexes.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:ff/patiantscreen/exercise.dart';
 
@@ -15,10 +16,8 @@ class ExerciseLearnPage2 extends StatelessWidget {
               icon: Icon(Icons.arrow_back),
               onPressed: () {
                 // Handle back arrow tap
-                Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => phasesexes()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => phasesexes()));
               },
             ),
             Text(
@@ -28,7 +27,6 @@ class ExerciseLearnPage2 extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-           
           ],
         ),
       ),
@@ -37,7 +35,8 @@ class ExerciseLearnPage2 extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center( // Center the text
+            Center(
+              // Center the text
               child: Text(
                 'HEEL SLIDES-KNEE FLEXION AND EXTENSION',
                 style: TextStyle(
@@ -73,9 +72,13 @@ class ExerciseLearnPage2 extends StatelessWidget {
             SizedBox(height: 50),
             ElevatedButton(
               onPressed: () {
-                 Navigator.push(
+                startEx2();
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Exercise(exerciseName: 'HEEL SLIDES-KNEE FLEXION AND EXTENSION')),
+                  MaterialPageRoute(
+                      builder: (context) => Exercise(
+                          exerciseName:
+                              'HEEL SLIDES-KNEE FLEXION AND EXTENSION')),
                 );
               },
               child: Text(
@@ -94,5 +97,21 @@ class ExerciseLearnPage2 extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> startEx2() async {
+    try {
+      // Ensure Firebase is initialized
+
+      // Reference to the EMG readings in the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref('start1');
+
+      // Set the value of 'phase1' to true
+      await ref.set(true);
+
+      // Listen to changes in the data (code for this would go here if needed)
+    } catch (e) {
+      print('Error : $e');
+    }
   }
 }

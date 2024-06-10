@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:ff/patiantscreen/angle.dart';
+import 'angle.dart'; // Adjust the import path as needed
 
 class Exercise extends StatefulWidget {
   final String exerciseName;
@@ -27,6 +28,9 @@ class _ExerciseState extends State<Exercise> {
   List<bool> _completedSquares = List.generate(15, (index) => false);
   bool _exerciseStopped = false;
   bool _exercisePaused = false;
+
+  bool _timeUpMessageShown =
+      false; // Flag to track if the time up message has been shown
 
   @override
   void initState() {
@@ -56,8 +60,40 @@ class _ExerciseState extends State<Exercise> {
             }
           }
         }
+
+        // Check if 5 minutes have passed and _completedReps > 0
+        if (_minutes == 1 && _completedReps > 0 && !_timeUpMessageShown) {
+          _timeUpMessageShown =
+              true; // Set flag to true to prevent multiple messages
+          _showTimeUpMessage();
+        }
       });
     });
+  }
+
+  void _showTimeUpMessage() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Time's Up!"),
+          content: Text("We will give you 2 minutes to finish the exercise."),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                //_timer.cancel(); // Cancel the timer
+                _navigateBackDelayed();
+              
+                // Navigate back after 2 minutes
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void updateProgressAtIndex() async {
@@ -75,8 +111,7 @@ class _ExerciseState extends State<Exercise> {
 
     // Update the element at the specified index
     progressArray[1] = HomeScreen1.exe;
-    progressArray[2] = HomeScreen1.exe *12.5;
-  
+    progressArray[2] = HomeScreen1.exe * 12.5;
 
     // Update the document with the modified array
     await patientRef.update({'progress': progressArray});
@@ -98,11 +133,32 @@ class _ExerciseState extends State<Exercise> {
     });
   }
 
+  void _navigateBack() {
+    Navigator.pop(context);
+    // Navigate back to the previous screen
+    endEx();
+  }
+
+  void _navigateBackDelayed() {
+    Future.delayed(Duration(minutes: 2), () {
+      if (_completedReps > 0) {
+        _navigateBack();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exercise 2'),
+        title: Text('Exercise'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            _stopExercise();
+            _navigateBack(); // Navigate back when back arrow is pressed
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
@@ -134,23 +190,28 @@ class _ExerciseState extends State<Exercise> {
                   return CircularProgressIndicator();
                 }
 
-                final angle = snapshot.data!;
+                final angle = snapshot.data!; //////change the angle
                 if (!_exerciseStopped && angle >= 60 && _completedReps > 0) {
                   for (int i = 0; i < _completedSquares.length; i++) {
                     if (_completedSquares[i] == false) {
                       _completedSquares[i] = true;
                       _completedReps--;
+                      vibrationoff();
                       if (_completedReps == 0) {
                         HomeScreen1.exe++; // Increment the global variable
                         Exercise.plus++;
                         print(HomeScreen1.exe);
                         updateProgressAtIndex();
                       }
+
                       break; // Break after coloring one square
                     }
                   }
+                } else if (!_exerciseStopped &&
+                    angle > 60 &&
+                    _completedReps > 0) {
+                  vibration();
                 }
-
                 return CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[200],
@@ -219,5 +280,54 @@ class _ExerciseState extends State<Exercise> {
         ),
       ),
     );
+  }
+
+  Future<void> endEx() async {
+    try {
+      // Ensure Firebase is initialized
+
+      // Reference to the EMG readings in the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref('start1');
+      DatabaseReference ref2 = FirebaseDatabase.instance.ref('start');
+      // Set the value of 'phase1' to true
+      await ref.set(false);
+      await ref2.set(false);
+
+      // Listen to changes in the data (code for this would go here if needed)
+    } catch (e) {
+      print('Error : $e');
+    }
+  }
+
+  Future<void> vibrationoff() async {
+    try {
+      // Ensure Firebase is initialized
+
+      // Reference to the EMG readings in the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref('vibration');
+
+      // Set the value of 'phase1' to true
+      await ref.set(true);
+
+      // Listen to changes in the data (code for this would go here if needed)
+    } catch (e) {
+      print('Error : $e');
+    }
+  }
+
+  Future<void> vibration() async {
+    try {
+      // Ensure Firebase is initialized
+
+      // Reference to the EMG readings in the Firebase Realtime Database
+      DatabaseReference ref = FirebaseDatabase.instance.ref('vibration');
+
+      // Set the value of 'phase1' to true
+      await ref.set(false);
+
+      // Listen to changes in the data (code for this would go here if needed)
+    } catch (e) {
+      print('Error : $e');
+    }
   }
 }

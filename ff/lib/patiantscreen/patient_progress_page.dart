@@ -52,8 +52,12 @@ class _UserState extends State<User1> {
         List<dynamic> progressArray = snapshot['progress'];
 
         // Store the value at the specified index in HomeScreen1.exe
-
-        HomeScreen1.exe = progressArray[1];
+ if (progressArray[1] == 8) {
+          HomeScreen1.exe = 0;
+        }
+        else{
+          HomeScreen1.exe = progressArray[1];
+        }
         setState(() {});
 
         print("Fetched progress: ${HomeScreen1.exe}");

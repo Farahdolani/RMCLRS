@@ -81,8 +81,13 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
         List<dynamic> progressArray = snapshot['progress'];
 
         // Store the value at the specified index in HomeScreen1.exe
-
-        HomeScreen1.exe = progressArray[1];
+        if (progressArray[1] == 8 ) {
+          HomeScreen1.exe = 0;
+        }
+        else{
+          HomeScreen1.exe = progressArray[1];
+        }
+        
         setState(() {});
 
         print("Fetched progress: ${HomeScreen1.exe}");
@@ -109,11 +114,11 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
 
     // Update the element at the specified index
     progressArray[1] = HomeScreen1.exe;
-     progressArray[2] = HomeScreen1.exe*12.5;
+
+    progressArray[2] = HomeScreen1.exe * 12.5;
 
     // Update the document with the modified array
     await patientRef.update({'progress': progressArray});
-  
   }
 
   @override
@@ -149,7 +154,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor:Colors.purple,
+        backgroundColor: Colors.purple,
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -396,7 +401,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
-                       Colors.purple), // Set the background color
+                        Colors.purple), // Set the background color
                   ),
                   child: Text(
                     'Go To Phases',
