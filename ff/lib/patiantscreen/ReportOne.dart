@@ -24,7 +24,7 @@ class _OneReportState extends State<OneReport> {
   void initState() {
     super.initState();
     fetchPatientAndTherapistInfo();
-    fetchEMGData();
+    //fetchEMGData();
   }
 
   Future<void> fetchPatientAndTherapistInfo() async {
@@ -80,6 +80,13 @@ class _OneReportState extends State<OneReport> {
           physicianName = therapistData['thName'];
           isLoading = false;
         });
+
+        await fetchEMGData(); // Call fetchEMGData after fetchPatientAndTherapistInfo has completed
+        setState(() {
+          isLoading = false;
+        });
+
+
       } else {
         print('Patient data is null.');
         setState(() {
@@ -93,35 +100,42 @@ class _OneReportState extends State<OneReport> {
       });
     }
   }
-
-  Future<void> fetchEMGData() async {
-    try {
-      // Ensure Firebase is initialized
-      await Firebase.initializeApp();
-
-      // Reference to the EMG readings in the Firebase Realtime Database
-      DatabaseReference ref = FirebaseDatabase.instance.ref('emg_readings');
-
-      // Listen to changes in the data
-      ref.onValue.listen((event) {
-        if (event.snapshot.exists) {
-          final data = event.snapshot.value as List<dynamic>;
-          List<FlSpot> tempData = [];
-          for (int i = 0; i < data.length; i++) {
-            tempData.add(FlSpot(i * 0.25, data[i].toDouble()));
+Future<void> fetchEMGData() async {
+  try {
+    DatabaseReference ref = FirebaseDatabase.instance.ref('emg').child('-O-6LKRJVF9OvSZMnIrM'); 
+    await ref.once().then((event) {
+      if (event.snapshot.exists) {
+        final data = event.snapshot.value as List<Object?>;
+        
+        List<FlSpot> tempData = [];
+        
+        for (int i = 0; i < data.length; i++) {
+          try {
+            tempData.add(FlSpot(i.toDouble(), (data[i] as num).toDouble()));
+           
+          } catch (e) {
+            print('Error parsing key: $e');
           }
-          setState(() {
-            emgData = tempData;
-          });
-        } else {
-          print('No EMG data available');
         }
-      });
-    } catch (e) {
-      print('Error fetching EMG data: $e');
-    }
+        setState(() {
+          print("state emg");
+          emgData = tempData;
+          isLoading=false;
+        });
+      } else {
+        print('No EMG data available');
+        setState(() {
+          isLoading=false;
+        });
+      }
+    });
+  } catch (e) {
+    print('Error fetching EMG data: $e');
+    setState(() {
+      isLoading=false;
+    });
   }
-
+}
   @override
   Widget build(BuildContext context) {
     String day = DateFormat('EEEE').format(DateTime.now()); // Current day

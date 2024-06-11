@@ -216,7 +216,7 @@ class _ExerciseState extends State<Exercise> {
                   radius: 50,
                   backgroundColor: Colors.grey[200],
                   child: Text(
-                    angle.toStringAsFixed(1),
+                    angle.toStringAsFixed(2),
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,

@@ -8,10 +8,12 @@ import 'package:ff/patiantscreen/patient_progress_page.dart';
 import 'package:ff/patiantscreen/phase.dart';
 import 'package:ff/patiantscreen/profile.dart';
 import 'package:ff/therapisto/patientprogress.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
 String Ofline = "Offline";
+
 
 class HomeScreen1 extends StatefulWidget {
   const HomeScreen1({super.key});
@@ -294,7 +296,18 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
+            FutureBuilder<bool>(
+              future: getDeviceReadyStatus(),
+              builder: (context, snapshot) {
+                Color backgroundColor;
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  backgroundColor = Colors.grey;
+                } else if (snapshot.hasData && snapshot.data == true) {
+                  backgroundColor = Color.fromARGB(255, 102, 211, 29);
+                } else {
+                  backgroundColor = Colors.red;
+                }
+                return  Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: Center(
                   child: Text(
@@ -308,7 +321,7 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                 width: double.infinity,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 8, 224, 26), // Background color
+                  color:backgroundColor, // Background color
                   borderRadius: BorderRadius.circular(8), // BorderRadius
                   boxShadow: [
                     BoxShadow(
@@ -318,7 +331,10 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                       offset: Offset(0, 3), // Offset
                     ),
                   ],
-                )),
+                ));
+              },
+            ),
+           
             Container(
               margin: const EdgeInsets.only(top: 20),
               child: Center(
@@ -364,18 +380,32 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    CircularProgressIndicator(
-                      value: (HomeScreen1.exe * 12.5) / 100,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          Color.fromARGB(255, 75, 237, 25)),
-                      strokeWidth:
-                          100, // Increase the strokeWidth for a larger indicator
-                      backgroundColor: Color.fromARGB(172, 72, 72, 72),
-                    ),
+                     Container(
+    height: 200,  // Increased the size to accommodate the shadow
+    width: 200,
+    decoration: BoxDecoration(
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.4),
+          spreadRadius: 5,
+          blurRadius: 30,
+          offset: Offset(0, 3),  // Adjust the offset as needed
+        ),
+      ],
+    ),
+    child: CircularProgressIndicator(
+      value: (HomeScreen1.exe * 12.5) / 100,
+      valueColor: AlwaysStoppedAnimation<Color>(
+        Color.fromARGB(255, 75, 237, 25),
+      ),
+      strokeWidth: 20,  // Adjust the strokeWidth as needed
+      backgroundColor: Color.fromARGB(172, 72, 72, 72),
+    ),
+  ),
                     Text(
                       "${HomeScreen1.exe * 12.5}%",
                       style: TextStyle(
-                        fontSize: 24, // Adjust the size as needed
+                        fontSize: 26, // Adjust the size as needed
                         fontWeight: FontWeight.bold,
                         color: const Color.fromARGB(255, 245, 245, 245),
                       ),
@@ -383,6 +413,9 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
                   ],
                 ),
               ),
+            ),
+            SizedBox(
+              height: 20,
             ),
             Center(
               child: Text('YOUR PROGRESS !'),
@@ -575,5 +608,12 @@ class _HomeScreen1 extends State<HomeScreen1> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+
+  Future<bool> getDeviceReadyStatus() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref('devready');
+    DatabaseEvent event = await ref.once();
+    return event.snapshot.value == true;
   }
 }

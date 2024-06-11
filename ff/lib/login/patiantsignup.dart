@@ -25,44 +25,81 @@ class _SignupState extends State<Signup> {
   final _passwordController = TextEditingController();
 
   bool obsecurePass = true;
+  String? deviceErrorMessage;
 
   Future userSignup() async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Step 1: Check if the deviceId exists and its status
+      DocumentSnapshot deviceSnapshot = await FirebaseFirestore.instance
+          .collection('Devices')
+          .doc(dId)
+          .get();
+
+      if (deviceSnapshot.exists) {
+        // Step 2: If the deviceId exists, check its status
+        if (deviceSnapshot['status'] == 'reserved') {
+          // If the device is already reserved, show error message
+          setState(() {
+            deviceErrorMessage = "This device is already reserved";
+          });
+          return;
+        } else {
+          // If the device is available, update its status to reserved
+          await FirebaseFirestore.instance
+              .collection('Devices')
+              .doc(dId)
+              .update({'status': 'reserved'});
+        }
+      } else {
+        // Step 3: If the deviceId does not exist, create it with status reserved
+        await FirebaseFirestore.instance
+            .collection('Devices')
+            .doc(dId)
+            .set({'deviceId': dId, 'status': 'reserved'});
+      }
+
+      // Step 4: Create user and store patient data
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      //You can also save additional user information (userName, thId, dId) to Firestore if needed
-       await FirebaseFirestore.instance.collection('patient2').doc(userCredential.user?.uid).set({
+      await FirebaseFirestore.instance
+          .collection('patient2')
+          .doc(userCredential.user?.uid)
+          .set({
         'name': userName,
-         'pId': thId,
-         'deviceId': dId,
-         'email': email,
-         'rool':'p',
-         'progress':[1,0,0],
-       });
+        'pId': thId,
+        'deviceId': dId,
+        'email': email,
+        'rool': 'p',
+        'progress': [1, 0, 0],
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              backgroundColor: Colors.green,
-              content: Text("Account created successfully",
-                style: TextStyle(
-                    fontSize: 20
-                ),)
-          ));
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            "Account created successfully",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+      );
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen1()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomeScreen1()));
     } on FirebaseAuthException catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              backgroundColor: Colors.red,
-              content: Text("Error: $e",
-                style: TextStyle(
-                    fontSize: 20
-                ),)
-          ));
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            "Error: $e",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+      );
     }
   }
 
@@ -160,6 +197,14 @@ class _SignupState extends State<Signup> {
                   ),
                 ),
               ),
+              if (deviceErrorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    deviceErrorMessage!,
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -225,6 +270,7 @@ class _SignupState extends State<Signup> {
                         dId = _dIdController.text;
                         email = _emailController.text;
                         password = _passwordController.text;
+                        deviceErrorMessage = null; // Clear previous error message
                       });
                       userSignup();
                     }
@@ -241,14 +287,4 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
-
-
-
-
-
-
-  
 }
-
-
-
