@@ -51,7 +51,7 @@ class _phasesexesState extends State<phasesexes> {
       ),
       drawer: Drawer(
         child: Container(
-            color:Colors.purple,
+            color: Colors.purple,
             child: SafeArea(
               child: Column(
                 children: [
@@ -199,13 +199,16 @@ class _phasesexesState extends State<phasesexes> {
             SizedBox(
               height: 200,
             ),
+
+            /////hiiiiiii we are died...
             SizedBox(
               width: MediaQuery.of(context).size.width / 2,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:Color.fromARGB(255, 8, 224, 26), // Set the button color to red
+                  backgroundColor: Color.fromARGB(
+                      255, 8, 224, 26), // Set the button color to red
                 ),
-                onPressed: HomeScreen1.exe== 8 ||HomeScreen1.exe== 0
+                onPressed: HomeScreen1.exe == 8 || HomeScreen1.exe == 0
                     ? () {
                         print(Exercise.plus);
                         // Button 3 action
