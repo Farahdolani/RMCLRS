@@ -1,3 +1,4 @@
+import 'package:ff/patiantscreen/home1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -85,8 +86,6 @@ class _OneReportState extends State<OneReport> {
         setState(() {
           isLoading = false;
         });
-
-
       } else {
         print('Patient data is null.');
         setState(() {
@@ -100,42 +99,47 @@ class _OneReportState extends State<OneReport> {
       });
     }
   }
-Future<void> fetchEMGData() async {
-  try {
-    DatabaseReference ref = FirebaseDatabase.instance.ref('emg').child('-O-6LKRJVF9OvSZMnIrM'); 
-    await ref.once().then((event) {
-      if (event.snapshot.exists) {
-        final data = event.snapshot.value as List<Object?>;
-        
-        List<FlSpot> tempData = [];
-        
-        for (int i = 0; i < data.length; i++) {
-          try {
-            tempData.add(FlSpot(i.toDouble(), (data[i] as num).toDouble()));
-           
-          } catch (e) {
-            print('Error parsing key: $e');
+
+  Future<void> fetchEMGData() async {
+    try {
+      DatabaseReference ref =
+          FirebaseDatabase.instance.ref('emg').child('-O-6LKRJVF9OvSZMnIrM');
+      await ref.once().then((event) {
+        if (event.snapshot.exists) {
+          final data = event.snapshot.value as List<Object?>;
+
+          List<FlSpot> tempData = [];
+
+          for (int i = 0; i < data.length; i++) {
+            try {
+              tempData.add(FlSpot(i.toDouble(), (data[i] as num).toDouble()));
+            } catch (e) {
+              print('Error parsing key: $e');
+            }
           }
+          setState(() {
+            print("state emg");
+            emgData = tempData;
+            isLoading = false;
+          });
+
+          // Save the report after fetching EMG data
+          saveReport();
+        } else {
+          print('No EMG data available');
+          setState(() {
+            isLoading = false;
+          });
         }
-        setState(() {
-          print("state emg");
-          emgData = tempData;
-          isLoading=false;
-        });
-      } else {
-        print('No EMG data available');
-        setState(() {
-          isLoading=false;
-        });
-      }
-    });
-  } catch (e) {
-    print('Error fetching EMG data: $e');
-    setState(() {
-      isLoading=false;
-    });
+      });
+    } catch (e) {
+      print('Error fetching EMG data: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     String day = DateFormat('EEEE').format(DateTime.now()); // Current day
@@ -186,13 +190,11 @@ Future<void> fetchEMGData() async {
                                 LineChartBarData(
                                   spots: emgData,
                                   isCurved: true,
-                                  color:Colors.blue,
+                                  color: Colors.blue,
                                   barWidth: 2,
                                   belowBarData: BarAreaData(
                                     show: true,
-                                    color: 
-                                      Colors.blue.withOpacity(0.3),
-                                    
+                                    color: Colors.blue.withOpacity(0.3),
                                   ),
                                 ),
                               ],
@@ -218,6 +220,9 @@ Future<void> fetchEMGData() async {
                                   ),
                                 ),
                               ),
+                              minX: 0,
+                              minY: 0,
+                              maxY: 7,
                             ),
                           ),
                         ),
@@ -289,5 +294,39 @@ Future<void> fetchEMGData() async {
               ),
             ),
     );
+  }
+
+  Future<void> saveReport() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('No authenticated user.');
+      return;
+    }
+    DateTime now = DateTime.now();
+    DateTime currentDate = DateTime(now.year, now.month, now.day);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(currentDate);
+    final reportData = {
+      'name': patientName,
+      'date': DateFormat('dd/MM/yyyy').format(DateTime.now()),
+      'deviceid': patientID,
+      'physicianName': physicianName,
+      'number_of_phases': 1, // replace with actual number of phases if needed
+      'emg_readings': emgData.map((spot) => spot.y).toList(),
+    };
+    if (reportData['date'] != formattedDate) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('patient2')
+            .doc(user.uid)
+            .collection('report')
+            .add(reportData);
+
+        print('Report saved successfully.');
+      } catch (e) {
+        print('Error saving report: $e');
+      }
+    } else {
+      print('its already save');
+    }
   }
 }

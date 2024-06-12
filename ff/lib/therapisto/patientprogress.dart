@@ -156,7 +156,7 @@ class _User3State extends State<User3> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => Repophase()),
+                        MaterialPageRoute(builder: (context) => Repophase( widget.patientDocId)),
                       );
                     },
                     child: Text(

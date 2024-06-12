@@ -1,13 +1,15 @@
- import 'package:ff/therapisto/doctor_plist.dart';
+import 'package:ff/therapisto/doctor_plist.dart';
 import 'package:ff/therapisto/generate_report.dart';
 import 'package:ff/therapisto/patientprogress.dart';
 import 'package:flutter/material.dart';
 
 class Repophase extends StatelessWidget {
+  final String patientDocId;
+
+  Repophase(this.patientDocId, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    String feedback = ''; // State variable to hold feedback
-
     return Scaffold(
       appBar: AppBar(
         title: Text(''),
@@ -15,15 +17,13 @@ class Repophase extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
-              context, 
+              context,
               MaterialPageRoute(builder: (context) => PatientsList())
-              
             ); // Go back when arrow is pressed
           },
         ),
       ),
-
- body: Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -32,71 +32,45 @@ class Repophase extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Button 1 action
+                  // Navigate to ReportsPage with patientDocId
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ReportsPage()));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReportsPage(patientDocId)
+                    )
+                  );
                 },
-                /* style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(
-                          255, 123, 33, 224)), // Set the background color
-                ), */
                 child: Text('Phase 1'),
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
+            SizedBox(height: 50),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Button 1 action
+                  // Handle Phase 2 action
                 },
-                /* style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(
-                          255, 123, 33, 224)), // Set the background color
-                ), */
                 child: Text('Phase 2'),
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
+            SizedBox(height: 50),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Button 1 action
+                  // Handle Phase 3 action
                 },
-                /* style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(
-                          255, 123, 33, 224)), // Set the background color
-                ), */
                 child: Text('Phase 3'),
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
+            SizedBox(height: 50),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Button 1 action
+                  // Handle Phase 4 action
                 },
-                /* style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(
-                          255, 123, 33, 224)), // Set the background color
-                ), */
-                child: Text(
-                  'phase 4',
-                ),
+                child: Text('Phase 4'),
               ),
             ),
           ],

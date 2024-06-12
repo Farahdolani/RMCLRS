@@ -1,16 +1,12 @@
 import 'dart:io';
-import 'package:ff/patiantscreen/patient_progress_page.dart';
-import 'package:ff/patiantscreen/report_ph2.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path/path.dart' as path;
 import 'package:open_file/open_file.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ReportsPage2 extends StatelessWidget {
   @override
@@ -27,19 +23,45 @@ class ReportsPage2 extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(
-              7,
-              (index) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: DayReportCard(
-                  day: index * 2 + 1,
-                ),
-              ),
-            ),
-          ),
+        child: FutureBuilder<User?>(
+          future: FirebaseAuth.instance.authStateChanges().first,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Center(child: Text('Error fetching user data.'));
+            }
+
+            final user = snapshot.data!;
+            return FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('patient2')
+                  .doc(user.uid)
+                  .collection('report')
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No reports available.'));
+                }
+
+                final reports = snapshot.data!.docs;
+
+                return ListView.builder(
+                  itemCount: reports.length,
+                  itemBuilder: (context, index) {
+                    final report = reports[index];
+                    return DayReportCard(
+                        reportData: report.data() as Map<String, dynamic>);
+                  },
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -47,9 +69,9 @@ class ReportsPage2 extends StatelessWidget {
 }
 
 class DayReportCard extends StatelessWidget {
-  final int day;
+  final Map<String, dynamic> reportData;
 
-  const DayReportCard({Key? key, required this.day}) : super(key: key);
+  const DayReportCard({Key? key, required this.reportData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +82,7 @@ class DayReportCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Day $day Report',
+              'Report for ${reportData['date']}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -70,9 +92,8 @@ class DayReportCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Patient: Zayn Shawahna'),
-                      Text('Patient ID: 111'),
-                      Text('Age: 23'),
+                      Text('Patient: ${reportData['name']}'),
+                      Text('Device ID: ${reportData['deviceid']}'),
                     ],
                   ),
                 ),
@@ -81,21 +102,14 @@ class DayReportCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Gender: Male'),
-                      Text('Date: 23/4/2024'),
-                      Text('Physician: Ahmad Waleed'),
+                      Text('Date: ${reportData['date']}'),
                     ],
                   ),
                 ),
               ],
             ),
             SizedBox(height: 10),
-            Image.asset(
-              './images/report.jfif',
-              width: 200,
-              height: 200,
-            ),
-            SizedBox(height: 10),
+            EMGChart(emgData: reportData['emg_readings']),
             Table(
               border: TableBorder.all(),
               columnWidths: {
@@ -120,18 +134,18 @@ class DayReportCard extends StatelessWidget {
                 TableRow(
                   children: [
                     TableCell(
-                      child: Center(child: Text('progress')),
+                      child: Center(child: Text('Progress')),
                     ),
                     TableCell(
                       child: Container(
-                        color: Colors.green,
+                        color: const Color.fromARGB(255, 15, 212, 21),
                         child: Center(child: Text('100%')),
                       ),
                     ),
                     TableCell(
                       child: Container(
-                        color: Color.fromARGB(255, 244, 7, 3),
-                        child: Center(child: Text('33%')),
+                        color: Color.fromARGB(255, 15, 212, 21),
+                        child: Center(child: Text('100%')),
                       ),
                     ),
                   ],
@@ -139,7 +153,7 @@ class DayReportCard extends StatelessWidget {
                 TableRow(
                   children: [
                     TableCell(
-                      child: Center(child: Text('repetition')),
+                      child: Center(child: Text('Repetition')),
                     ),
                     TableCell(
                       child: Container(
@@ -149,8 +163,8 @@ class DayReportCard extends StatelessWidget {
                     ),
                     TableCell(
                       child: Container(
-                        color: Color.fromARGB(255, 244, 7, 3),
-                        child: Center(child: Text('3/15')),
+                        color: Color.fromARGB(255, 15, 212, 21),
+                        child: Center(child: Text('15/15')),
                       ),
                     ),
                   ],
@@ -161,8 +175,8 @@ class DayReportCard extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () async {
-                  /* final pdf = pw.Document();
-                //  final content = await _buildPdfContent(context, pdf);
+                  final pdf = pw.Document();
+                  final content = await _buildPdfContent(context, pdf);
                   pdf.addPage(
                     pw.Page(
                       build: (context) => pw.Center(child: content),
@@ -170,7 +184,8 @@ class DayReportCard extends StatelessWidget {
                   );
 
                   final output = await getExternalStorageDirectory();
-                  final file = File('${output!.path}/report_$day.pdf');
+                  final file =
+                      File('${output!.path}/report_${reportData['date']}.pdf');
                   await file.writeAsBytes(await pdf.save());
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -179,9 +194,9 @@ class DayReportCard extends StatelessWidget {
                     ),
                   );
 
-                  OpenFile.open(file.path);*/
+                  OpenFile.open(file.path);
                 },
-                child: Text('Download as PDF'), 
+                child: Text('Download as PDF'),
               ),
             ),
           ],
@@ -190,4 +205,78 @@ class DayReportCard extends StatelessWidget {
     );
   }
 
+  Future<pw.Widget> _buildPdfContent(
+      BuildContext context, pw.Document pdf) async {
+    final imageBytes = await rootBundle.load('assets/images/report.jfif');
+    final image = pw.MemoryImage(imageBytes.buffer.asUint8List());
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Report for ${reportData['date']}',
+          style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+        ),
+        pw.SizedBox(height: 20),
+        pw.Text(
+          'Patient: ${reportData['name']}\nDevice ID: ${reportData['deviceid']}\nDate: ${reportData['date']}}',
+        ),
+        pw.SizedBox(height: 20),
+        pw.Image(image),
+        pw.SizedBox(height: 20),
+        pw.Table.fromTextArray(
+          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          headers: ['Phase', 'Exercise 1', 'Exercise 2'],
+          data: [
+            ['Progress', '100%', '33%'],
+            ['Repetition', '15/15', '3/15'],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class EMGChart extends StatelessWidget {
+  final List<dynamic> emgData;
+
+  EMGChart({required this.emgData});
+
+  @override
+  Widget build(BuildContext context) {
+    List<FlSpot> spots = [];
+
+    for (int i = 0; i < emgData.length; i++) {
+      spots.add(FlSpot(i * 0.25.toDouble(), emgData[i].toDouble()));
+    }
+
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      height: 300,
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(show: true),
+          titlesData: FlTitlesData(show: true),
+          borderData: FlBorderData(show: true),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.blue.withOpacity(0.3),
+              ),
+              color: Colors.blue,
+              barWidth: 2,
+              isStrokeCapRound: true,
+              dotData: FlDotData(show: false),
+            ),
+          ],
+          minX: 0,
+          minY: 0,
+          maxY: 7, // Adjust this based on your EMG data range
+        ),
+      ),
+    );
+  }
 }

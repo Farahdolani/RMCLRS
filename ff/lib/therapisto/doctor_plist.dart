@@ -222,13 +222,7 @@ class _PatientsListState extends State<PatientsList> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        width: double.infinity,
-        child: Image.asset(
-          './images/bottomIMAGE.png',
-          fit: BoxFit.cover,
-        ),
-      ),
+      
     );
   }
 

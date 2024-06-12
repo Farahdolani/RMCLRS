@@ -1,15 +1,17 @@
 import 'dart:io';
-import 'package:ff/patiantscreen/patient_progress_page.dart';
-import 'package:ff/therapisto/patientprogress.dart';
-import 'package:ff/therapisto/report_phase.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path/path.dart' as path;
 import 'package:open_file/open_file.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ReportsPage extends StatelessWidget {
+  final String patientDocId;
+
+  ReportsPage(this.patientDocId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,38 +20,40 @@ class ReportsPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Repophase()),
-            );
+            Navigator.pop(context);
           },
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(
-            7,
-            (index) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ReportCard(
-                      day: index * 2 + 1,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ReportCard(
-                      day: index * 2 + 2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        child: FutureBuilder<QuerySnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('patient2')
+              .doc(patientDocId)
+              .collection('report')
+              .get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(child: Text('No reports available.'));
+            }
+
+            final reports = snapshot.data!.docs;
+
+            return ListView.builder(
+              itemCount: reports.length,
+              itemBuilder: (context, index) {
+                final report = reports[index];
+                return ReportCard(
+                  reportData: report.data() as Map<String, dynamic>,
+                  patientDocId: patientDocId,
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -57,9 +61,12 @@ class ReportsPage extends StatelessWidget {
 }
 
 class ReportCard extends StatelessWidget {
-  final int day;
+  final Map<String, dynamic> reportData;
+  final String patientDocId;
 
-  const ReportCard({Key? key, required this.day}) : super(key: key);
+  const ReportCard(
+      {Key? key, required this.reportData, required this.patientDocId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +74,16 @@ class ReportCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => DynamicReportPage(day: day)),
+          MaterialPageRoute(
+              builder: (context) => DynamicReportPage(
+                  reportData: reportData, patientDocId: patientDocId)),
         );
       },
       child: Card(
         child: ListTile(
           leading: Icon(Icons.article),
-          title: Text('Day $day Report'),
+          title: Text('Report for ${reportData['date']}'),
+          subtitle: Text('Physician: ${reportData['physicianName']}'),
         ),
       ),
     );
@@ -81,15 +91,18 @@ class ReportCard extends StatelessWidget {
 }
 
 class DynamicReportPage extends StatelessWidget {
-  final int day;
+  final Map<String, dynamic> reportData;
+  final String patientDocId;
 
-  const DynamicReportPage({Key? key, required this.day}) : super(key: key);
+  const DynamicReportPage(
+      {Key? key, required this.reportData, required this.patientDocId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Report for Day $day'),
+        title: Text('Report for ${reportData['date']}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -102,9 +115,8 @@ class DynamicReportPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Patient: Zayn Shawahna'),
-                      Text('Patient ID: 111'),
-                      Text('Age: 23'),
+                      Text('Patient: ${reportData['name']}'),
+                      Text('Device ID: ${reportData['deviceid']}'),
                     ],
                   ),
                 ),
@@ -113,33 +125,27 @@ class DynamicReportPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Gender: Male'),
-                      Text('Date: 23/4/2024'),
-                      Text('Physician: Ahmad Waleed'),
+                      Text('Date: ${reportData['date']}'),
+                      Text('Physician: ${reportData['physicianName']}'),
                     ],
                   ),
                 ),
               ],
             ),
-            Image.asset(
-              './images/report.jfif',
-              width: 200,
-              height: 200,
-            ),
             SizedBox(height: 20),
+            EMGChart(emgData: reportData['emg_readings']),
             Table(
               border: TableBorder.all(),
               columnWidths: {
                 0: FlexColumnWidth(1),
                 1: FlexColumnWidth(1),
                 2: FlexColumnWidth(1),
-                3: FlexColumnWidth(1),
               },
               children: [
                 TableRow(
                   children: [
                     TableCell(
-                      child: Center(child: Text(' ')),
+                      child: Center(child: Text('Phase')),
                     ),
                     TableCell(
                       child: Center(child: Text('Exercise 1')),
@@ -152,7 +158,7 @@ class DynamicReportPage extends StatelessWidget {
                 TableRow(
                   children: [
                     TableCell(
-                      child: Center(child: Text('progress')),
+                      child: Center(child: Text('Progress')),
                     ),
                     TableCell(
                       child: Container(
@@ -171,7 +177,7 @@ class DynamicReportPage extends StatelessWidget {
                 TableRow(
                   children: [
                     TableCell(
-                      child: Center(child: Text('repetition')),
+                      child: Center(child: Text('Repetition')),
                     ),
                     TableCell(
                       child: Container(
@@ -202,7 +208,8 @@ class DynamicReportPage extends StatelessWidget {
                   );
 
                   final output = await getExternalStorageDirectory();
-                  final file = File('${output!.path}/report_$day.pdf');
+                  final file =
+                      File('${output!.path}/report_${reportData['date']}.pdf');
                   await file.writeAsBytes(await pdf.save());
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -224,32 +231,78 @@ class DynamicReportPage extends StatelessWidget {
 
   Future<pw.Widget> _buildPdfContent(
       BuildContext context, pw.Document pdf) async {
-    final imageBytes = await rootBundle.load('./images/report.jfif');
+    final imageBytes = await rootBundle.load('assets/images/report.jfif');
     final image = pw.MemoryImage(imageBytes.buffer.asUint8List());
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'Report for Day $day',
+          'Report for ${reportData['date']}',
           style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
         ),
         pw.SizedBox(height: 20),
         pw.Text(
-          'Patient: Zayn Shawahna\nPatient ID: 111\nAge: 23\nGender: Male\nDate: 23/4/2024\nPhysician: Ahmad Waleed',
+          'Patient: ${reportData['name']}\nDevice ID: ${reportData['deviceid']}\nDate: ${reportData['date']}\nPhysician: ${reportData['physicianName']}',
         ),
         pw.SizedBox(height: 20),
         pw.Image(image),
         pw.SizedBox(height: 20),
         pw.Table.fromTextArray(
           headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          headers: [' ', 'Exercise 1', 'Exercise 2'],
+          headers: ['Phase', 'Exercise 1', 'Exercise 2'],
           data: [
-            ['progress', '100%', '33%'],
-            ['repetition', '15/15', '3/15'],
+            ['Progress', '100%', '33%'],
+            ['Repetition', '15/15', '3/15'],
           ],
         ),
       ],
+    );
+  }
+}
+
+class EMGChart extends StatelessWidget {
+  final List<dynamic> emgData;
+
+  EMGChart({required this.emgData});
+
+  @override
+  Widget build(BuildContext context) {
+    List<FlSpot> spots = [];
+
+    // Mapping EMG data to FlSpot
+    for (int i = 0; i < emgData.length; i++) {
+      spots.add(FlSpot(i * 0.25.toDouble(), emgData[i].toDouble()));
+    }
+
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      height: 300,
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(show: true),
+          titlesData: FlTitlesData(show: true),
+          borderData: FlBorderData(show: true),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              belowBarData: BarAreaData(
+                                    show: true,
+                                    color: Colors.blue.withOpacity(0.3),
+                                  ),
+              color: Colors.blue,
+              barWidth: 2,
+              isStrokeCapRound: true,
+              dotData: FlDotData(show: false),
+            ),
+          ],
+          minX: 0,
+         // maxX: (emgData.length - 1).toDouble() * 0.25,
+          minY: 0,
+          maxY: 7, // Adjust this based on your EMG data range
+        ),
+      ),
     );
   }
 }
