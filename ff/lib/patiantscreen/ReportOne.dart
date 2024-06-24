@@ -103,7 +103,8 @@ class _OneReportState extends State<OneReport> {
   Future<void> fetchEMGData() async {
     try {
       DatabaseReference ref =
-          FirebaseDatabase.instance.ref('emg').child('-O-6LKRJVF9OvSZMnIrM');
+          FirebaseDatabase.instance.ref('emg');
+          //make sure the child never change/////////
       await ref.once().then((event) {
         if (event.snapshot.exists) {
           final data = event.snapshot.value as List<Object?>;
@@ -295,38 +296,46 @@ class _OneReportState extends State<OneReport> {
             ),
     );
   }
-
-  Future<void> saveReport() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('No authenticated user.');
-      return;
-    }
-    DateTime now = DateTime.now();
-    DateTime currentDate = DateTime(now.year, now.month, now.day);
-    String formattedDate = DateFormat('dd/MM/yyyy').format(currentDate);
-    final reportData = {
-      'name': patientName,
-      'date': DateFormat('dd/MM/yyyy').format(DateTime.now()),
-      'deviceid': patientID,
-      'physicianName': physicianName,
-      'number_of_phases': 1, // replace with actual number of phases if needed
-      'emg_readings': emgData.map((spot) => spot.y).toList(),
-    };
-    if (reportData['date'] != formattedDate) {
-      try {
-        await FirebaseFirestore.instance
-            .collection('patient2')
-            .doc(user.uid)
-            .collection('report')
-            .add(reportData);
-
-        print('Report saved successfully.');
-      } catch (e) {
-        print('Error saving report: $e');
-      }
-    } else {
-      print('its already save');
-    }
+Future<void> saveReport() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    print('No authenticated user.');
+    return;
   }
+  
+  DateTime now = DateTime.now();
+  DateTime currentDate = DateTime(now.year, now.month, now.day);
+  String formattedDate = DateFormat('dd/MM/yyyy').format(currentDate);
+
+  final reportData = {
+    'name': patientName,
+    'date': formattedDate,
+    'deviceid': patientID,
+    'physicianName': physicianName,
+    'number_of_phases': 1, // replace with actual number of phases if needed
+    'emg_readings': emgData.map((spot) => spot.y).toList(),
+  };
+
+  try {
+    final reportCollection = FirebaseFirestore.instance
+        .collection('patient2')
+        .doc(user.uid)
+        .collection('report');
+    
+    // Check if a report for the current date already exists
+    final querySnapshot = await reportCollection
+        .where('date', isEqualTo: formattedDate)
+        .get();
+    
+    if (querySnapshot.docs.isEmpty) {
+      // No report for the current date, proceed to save the new report
+      await reportCollection.add(reportData);
+      print('Report saved successfully.');
+    } else {
+      print('Report for today is already saved.');
+    }
+  } catch (e) {
+    print('Error saving report: $e');
+  }
+}
 }

@@ -5,7 +5,21 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'angle.dart'; // Adjust the import path as needed
+class AngleStream {
+  Stream<double> getAngleStream() {
+    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('all').child('roll');
+    final StreamController<double> controller = StreamController<double>();
+
+    databaseRef.onValue.listen((event) {
+      final data = event.snapshot.value as double?;
+      if (data != null) {
+        controller.add(data);
+      }
+    });
+
+    return controller.stream;
+  }
+}
 
 class Exercise extends StatefulWidget {
   final String exerciseName;
@@ -15,8 +29,6 @@ class Exercise extends StatefulWidget {
 
   @override
   _ExerciseState createState() => _ExerciseState();
-
-  // Static variable to track the repetitions
 }
 
 class _ExerciseState extends State<Exercise> {
@@ -28,15 +40,13 @@ class _ExerciseState extends State<Exercise> {
   List<bool> _completedSquares = List.generate(15, (index) => false);
   bool _exerciseStopped = false;
   bool _exercisePaused = false;
-
-  bool _timeUpMessageShown =
-      false; // Flag to track if the time up message has been shown
+  bool _timeUpMessageShown = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
-    // fetchAndUpdateProgress();  // Fetch the progress when the widget is initialized
+    _listenToRepCount();
   }
 
   @override
@@ -61,10 +71,8 @@ class _ExerciseState extends State<Exercise> {
           }
         }
 
-        // Check if 5 minutes have passed and _completedReps > 0
         if (_minutes == 1 && _completedReps > 0 && !_timeUpMessageShown) {
-          _timeUpMessageShown =
-              true; // Set flag to true to prevent multiple messages
+          _timeUpMessageShown = true;
           _showTimeUpMessage();
         }
       });
@@ -74,7 +82,7 @@ class _ExerciseState extends State<Exercise> {
   void _showTimeUpMessage() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Time's Up!"),
@@ -84,10 +92,7 @@ class _ExerciseState extends State<Exercise> {
               child: Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
-                //_timer.cancel(); // Cancel the timer
                 _navigateBackDelayed();
-              
-                // Navigate back after 2 minutes
               },
             ),
           ],
@@ -96,24 +101,38 @@ class _ExerciseState extends State<Exercise> {
     );
   }
 
+  void _listenToRepCount() {
+    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('repcount');
+    databaseRef.onValue.listen((event) {
+      final data = event.snapshot.value as int?;
+      if (data != null) {
+        setState(() {
+          for (int i = 0; i < _completedSquares.length; i++) {
+            if (!_completedSquares[i]) {
+              _completedSquares[i] = true;
+              _completedReps--;
+              vibrationoff();
+              if (_completedReps == 0) {
+                HomeScreen1.exe++;
+                Exercise.plus++;
+                print(HomeScreen1.exe);
+                updateProgressAtIndex();
+              }
+              break;
+            }
+          }
+        });
+      }
+    });
+  }
+
   void updateProgressAtIndex() async {
     User? user = FirebaseAuth.instance.currentUser;
-
-    // Get a reference to the patient document
-    DocumentReference patientRef =
-        FirebaseFirestore.instance.collection('patient2').doc(user?.uid);
-
-    // Fetch the current document snapshot
+    DocumentReference patientRef = FirebaseFirestore.instance.collection('patient2').doc(user?.uid);
     DocumentSnapshot snapshot = await patientRef.get();
-
-    // Get the current progress array
     List<dynamic> progressArray = snapshot['progress'];
-
-    // Update the element at the specified index
     progressArray[1] = HomeScreen1.exe;
     progressArray[2] = HomeScreen1.exe * 12.5;
-
-    // Update the document with the modified array
     await patientRef.update({'progress': progressArray});
   }
 
@@ -122,8 +141,6 @@ class _ExerciseState extends State<Exercise> {
     setState(() {
       _exerciseStopped = true;
     });
-    // Save exercise data here
-    // Reset variables if needed
   }
 
   void _resumeExercise() {
@@ -135,7 +152,6 @@ class _ExerciseState extends State<Exercise> {
 
   void _navigateBack() {
     Navigator.pop(context);
-    // Navigate back to the previous screen
     endEx();
   }
 
@@ -156,7 +172,7 @@ class _ExerciseState extends State<Exercise> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             _stopExercise();
-            _navigateBack(); // Navigate back when back arrow is pressed
+            _navigateBack();
           },
         ),
       ),
@@ -190,28 +206,7 @@ class _ExerciseState extends State<Exercise> {
                   return CircularProgressIndicator();
                 }
 
-                final angle = snapshot.data!; //////change the angle
-                if (!_exerciseStopped && angle >= 60 && _completedReps > 0) {
-                  for (int i = 0; i < _completedSquares.length; i++) {
-                    if (_completedSquares[i] == false) {
-                      _completedSquares[i] = true;
-                      _completedReps--;
-                      vibrationoff();
-                      if (_completedReps == 0) {
-                        HomeScreen1.exe++; // Increment the global variable
-                        Exercise.plus++;
-                        print(HomeScreen1.exe);
-                        updateProgressAtIndex();
-                      }
-
-                      break; // Break after coloring one square
-                    }
-                  }
-                } else if (!_exerciseStopped &&
-                    angle > 60 &&
-                    _completedReps > 0) {
-                  vibration();
-                }
+                final angle = snapshot.data!;
                 return CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[200],
@@ -235,8 +230,7 @@ class _ExerciseState extends State<Exercise> {
                   height: 15,
                   margin: EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color:
-                        _completedSquares[index] ? Colors.green : Colors.grey,
+                    color: _completedSquares[index] ? Colors.green : Colors.grey,
                     border: Border.all(color: Colors.black),
                   ),
                 ),
@@ -284,16 +278,10 @@ class _ExerciseState extends State<Exercise> {
 
   Future<void> endEx() async {
     try {
-      // Ensure Firebase is initialized
-
-      // Reference to the EMG readings in the Firebase Realtime Database
       DatabaseReference ref = FirebaseDatabase.instance.ref('start1');
       DatabaseReference ref2 = FirebaseDatabase.instance.ref('start');
-      // Set the value of 'phase1' to true
       await ref.set(false);
       await ref2.set(false);
-
-      // Listen to changes in the data (code for this would go here if needed)
     } catch (e) {
       print('Error : $e');
     }
@@ -301,15 +289,8 @@ class _ExerciseState extends State<Exercise> {
 
   Future<void> vibrationoff() async {
     try {
-      // Ensure Firebase is initialized
-
-      // Reference to the EMG readings in the Firebase Realtime Database
       DatabaseReference ref = FirebaseDatabase.instance.ref('vibration');
-
-      // Set the value of 'phase1' to true
       await ref.set(true);
-
-      // Listen to changes in the data (code for this would go here if needed)
     } catch (e) {
       print('Error : $e');
     }
@@ -317,15 +298,8 @@ class _ExerciseState extends State<Exercise> {
 
   Future<void> vibration() async {
     try {
-      // Ensure Firebase is initialized
-
-      // Reference to the EMG readings in the Firebase Realtime Database
       DatabaseReference ref = FirebaseDatabase.instance.ref('vibration');
-
-      // Set the value of 'phase1' to true
       await ref.set(false);
-
-      // Listen to changes in the data (code for this would go here if needed)
     } catch (e) {
       print('Error : $e');
     }

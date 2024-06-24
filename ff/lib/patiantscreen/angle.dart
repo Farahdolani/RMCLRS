@@ -3,14 +3,14 @@ import 'package:firebase_database/firebase_database.dart';
 
 class AngleStream {
   Stream<double> getAngleStream() {
-    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('all');
+    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('all').child('roll');
     final StreamController<double> controller = StreamController<double>();
 
-    databaseRef.onChildAdded.listen((event) {
-      final data = event.snapshot.value as Map<dynamic, dynamic>;
-      final roll = data['roll'] as double?;
-      if (roll != null) {
-        controller.add(roll);
+    // Listen for value changes in the 'roll' child
+    databaseRef.onValue.listen((event) {
+      final data = event.snapshot.value as double?;
+      if (data != null) {
+        controller.add(data);
       }
     });
 

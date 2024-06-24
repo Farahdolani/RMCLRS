@@ -17,8 +17,5 @@ tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 buildscript {
-    dependencies {
-        // Add this line
-        classpath 'com.google.gms:google-services:4.4.1' // check for the latest version
-    }
+
 }
