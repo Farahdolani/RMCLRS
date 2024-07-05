@@ -70,22 +70,7 @@ class _AuthPageeState extends State<AuthPagee> {
             const Padding(padding: EdgeInsets.only(top: 20)),
             const Login(),
             const Padding(padding: EdgeInsets.only(top: 20)),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Forgotpass()));
-                },
-                child: Text(
-                  "Forgot your password?",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+            
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

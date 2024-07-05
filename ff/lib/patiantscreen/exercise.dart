@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:ff/patiantscreen/home1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -41,6 +42,7 @@ class _ExerciseState extends State<Exercise> {
   bool _exerciseStopped = false;
   bool _exercisePaused = false;
   bool _timeUpMessageShown = false;
+  int? _initialRepCount;
 
   @override
   void initState() {
@@ -71,7 +73,7 @@ class _ExerciseState extends State<Exercise> {
           }
         }
 
-        if (_minutes == 1 && _completedReps > 0 && !_timeUpMessageShown) {
+        if (_minutes == 5 && _completedReps > 0 && !_timeUpMessageShown) {
           _timeUpMessageShown = true;
           _showTimeUpMessage();
         }
@@ -101,31 +103,37 @@ class _ExerciseState extends State<Exercise> {
     );
   }
 
-  void _listenToRepCount() {
-    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('repcount');
-    databaseRef.onValue.listen((event) {
-      final data = event.snapshot.value as int?;
-      if (data != null) {
-        setState(() {
-          for (int i = 0; i < _completedSquares.length; i++) {
-            if (!_completedSquares[i]) {
-              _completedSquares[i] = true;
-              _completedReps--;
-              vibrationoff();
-              if (_completedReps == 0) {
-                HomeScreen1.exe++;
-                Exercise.plus++;
-                print(HomeScreen1.exe);
-                updateProgressAtIndex();
-              }
-              break;
-            }
-          }
-        });
-      }
-    });
-  }
-
+   void _listenToRepCount() {
+     final DatabaseReference databaseRef = FirebaseDatabase.instance.ref('repcount');
+     databaseRef.onValue.listen((event) {
+       final data = event.snapshot.value as int?;
+       if (data != null) {
+         setState(() {
+           if (_initialRepCount == null) {
+             // تخزين القيمة الأولية
+             _initialRepCount = data;
+           } else if (data > _initialRepCount!) {
+             // التحقق من زيادة القيمة
+             for (int i = 0; i < _completedSquares.length; i++) {
+               if (!_completedSquares[i]) {
+                 _completedSquares[i] = true;
+                 _completedReps--;
+                 vibrationoff();
+                 if (_completedReps == 0) {
+                   HomeScreen1.exe++;
+                   Exercise.plus++;
+                   print(HomeScreen1.exe);
+                   updateProgressAtIndex();
+                 }
+                 break;
+               }
+             }
+             _initialRepCount = data;  // تحديث القيمة الأولية بعد التغيير
+           }
+         });
+       }
+     });
+   }
   void updateProgressAtIndex() async {
     User? user = FirebaseAuth.instance.currentUser;
     DocumentReference patientRef = FirebaseFirestore.instance.collection('patient2').doc(user?.uid);
@@ -211,7 +219,7 @@ class _ExerciseState extends State<Exercise> {
                   radius: 50,
                   backgroundColor: Colors.grey[200],
                   child: Text(
-                    angle.toStringAsFixed(2),
+                    angle.toStringAsFixed(1),
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,

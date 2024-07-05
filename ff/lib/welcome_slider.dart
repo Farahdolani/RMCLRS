@@ -1,9 +1,10 @@
+import 'package:ff/patiantscreen/home1.dart';
 import 'package:flutter/material.dart';
 import 'package:ff/therapisto/doctor_plist.dart';
 
 
 
-class MyApp extends StatelessWidget {
+/* class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       home: WelcomeSlider(),
     );
   }
-}
+} */
 
 class WelcomeSlider extends StatefulWidget {
   @override
@@ -38,9 +39,9 @@ class _WelcomeSliderState extends State<WelcomeSlider> {
               });
             },
             children: [
-              buildPage("Welcome", "Welcome to our app!", Colors.blue),
-              buildPage("Get Started", "Get started and explore our features.", Colors.green),
-              buildPage("Enjoy!", "Enjoy using our app!", Colors.orange),
+              buildPage("Welcome", "Welcome to our app RMCLRS!", Color.fromARGB(255, 234, 165, 245)),
+              buildPage("Get Started", "Get started and explore our features.", Color.fromARGB(255, 227, 111, 237)),
+              buildPage("Enjoy!", "Enjoy using our app!", Color.fromARGB(255, 117, 36, 101)),
             ],
           ),
           Positioned(
@@ -69,7 +70,7 @@ class _WelcomeSliderState extends State<WelcomeSlider> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PatientsList()),
+                  MaterialPageRoute(builder: (context) =>HomeScreen1()),
                 );
               },
               child: Text('Skip'),

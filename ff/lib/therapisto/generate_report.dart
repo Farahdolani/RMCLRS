@@ -168,8 +168,8 @@ class DynamicReportPage extends StatelessWidget {
                     ),
                     TableCell(
                       child: Container(
-                        color: Color.fromARGB(255, 244, 7, 3),
-                        child: Center(child: Text('33%')),
+                        color: Colors.green,
+                        child: Center(child: Text('100%')),
                       ),
                     ),
                   ],
@@ -187,8 +187,8 @@ class DynamicReportPage extends StatelessWidget {
                     ),
                     TableCell(
                       child: Container(
-                        color: Color.fromARGB(255, 244, 7, 3),
-                        child: Center(child: Text('3/15')),
+                        color: Colors.green,
+                        child: Center(child: Text('15/15')),
                       ),
                     ),
                   ],
@@ -196,7 +196,7 @@ class DynamicReportPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-            Center(
+           /*  Center(
               child: ElevatedButton(
                 onPressed: () async {
                   final pdf = pw.Document();
@@ -222,7 +222,7 @@ class DynamicReportPage extends StatelessWidget {
                 },
                 child: Text('Download as PDF'),
               ),
-            ),
+            ), */
           ],
         ),
       ),

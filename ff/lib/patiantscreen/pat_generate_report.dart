@@ -172,33 +172,7 @@ class DayReportCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 10),
-            Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final pdf = pw.Document();
-                  final content = await _buildPdfContent(context, pdf);
-                  pdf.addPage(
-                    pw.Page(
-                      build: (context) => pw.Center(child: content),
-                    ),
-                  );
-
-                  final output = await getExternalStorageDirectory();
-                  final file =
-                      File('${output!.path}/report_${reportData['date']}.pdf');
-                  await file.writeAsBytes(await pdf.save());
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('PDF downloaded successfully'),
-                    ),
-                  );
-
-                  OpenFile.open(file.path);
-                },
-                child: Text('Download as PDF'),
-              ),
-            ),
+            
           ],
         ),
       ),

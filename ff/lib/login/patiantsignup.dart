@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ff/patiantscreen/home1.dart';
+import 'package:ff/welcome_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -88,7 +89,7 @@ class _SignupState extends State<Signup> {
       );
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen1()));
+          context, MaterialPageRoute(builder: (context) => WelcomeSlider()));
     } on FirebaseAuthException catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
